@@ -13,10 +13,20 @@ from apple.models import Tweet
 
 def index(request):
 	context = {}
+
+	# get:
+	# 1) daily / weekly / monthly wordcloud info. this should be a pregenerated image, not run on demand
+	# 2) topic modelling, same.
+	# 3) positive tweets
+	# 4) negative tweets
+	# 5) other tweets
+	
 	return render(request, 'dashboard.html', context)
 
 def customers(request):
 	context = {}
+
+	# get list of customers, 3 per row?
 	return render(request, 'customers.html', context)
 
 
@@ -24,6 +34,9 @@ def customers(request):
 def stream_api_post(request):
 	if request.method == 'POST':
 		tweet_details = json.loads(request.body)
+		if not tweet_details["AUTH_KEY"] == os.environ["DJANGO_POST_KEY"]:
+			return HttpResponse("Invalid Auth key")
+
 		tweet = Tweet.find_or_create(tweet_details)
 		response = {'status':'fail'}
 

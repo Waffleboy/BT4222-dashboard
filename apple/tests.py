@@ -14,12 +14,12 @@ class ModelTestCase(TestCase):
     		data = json.load(f)
 
     def test_save_user(self):
-    	return self.assertEqual(result,True)
+    	result = TwitterUser.find_or_create(data['user'])
+    	return self.assertEqual(14065548,result.twitter_id)
 
 
     def test_save_tweet(self):
-    	tweet = objs[0]
-
-    	return self.assertEqual(result,True)
+    	result = TwitterUser.find_or_create(data)
+    	return self.assertEqual(result,result.tweet_id)
 
     	
