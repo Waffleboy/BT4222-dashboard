@@ -87,3 +87,6 @@ twitter_keys.csv
 scrapers/saved_files/*
 .fuse*
 dashboard_template
+
+scripts/*.h5
+scripts/*.pkl
