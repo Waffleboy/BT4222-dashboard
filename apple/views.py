@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from apple.models import Tweet
+from apple.models import Tweet,TwitterUser
 from apple import views_helper 
 
 import logging
@@ -31,6 +31,7 @@ def index(request):
 	negative_tweets = tweets.filter(sentiment='negative')
 	other_tweets = tweets.exclude(sentiment__in=['positive','negative'])
 
+	context['total_users'] = TwitterUser.objects.count()
 	context['positive_tweets'] = views_helper.format_tweets_to_table(positive_tweets)
 	context['negative_tweets'] = views_helper.format_tweets_to_table(negative_tweets)
 	context['other_tweets'] = views_helper.format_other_tweets_to_table(other_tweets)

@@ -4,8 +4,7 @@
         <div class="row tile_count">
             <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-user"></i> Total Users</span>
-              <div class="count">2500</div>
-              <span class="count_bottom"><i class="green">4% </i> From last Week</span>
+              <div class="count">{{total_users}}</div>
             </div>
             <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-clock-o"></i> Average Time</span>
@@ -108,23 +107,23 @@
                   <div class="x_content">
 
 
-                    <div class="" role="tabpanel" data-example-id="togglable-tabs">
-                      <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
-                        <li role="presentation" class="active"><a href="#tab_content1" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true">Daily</a>
+                    <div class="other" role="tabpanel" data-example-id="togglable-tabs">
+                      <ul id="myTab2" class="nav nav-tabs bar_tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#tab_content11" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true">Daily</a>
                         </li>
-                        <li role="presentation" class=""><a href="#tab_content2" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Weekly</a>
+                        <li role="presentation" class=""><a href="#tab_content12" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Weekly</a>
                         </li>
-                        <li role="presentation" class=""><a href="#tab_content3" role="tab" id="profile-tab2" data-toggle="tab" aria-expanded="false">Monthly</a>
+                        <li role="presentation" class=""><a href="#tab_content13" role="tab" id="profile-tab2" data-toggle="tab" aria-expanded="false">Monthly</a>
                         </li>
                       </ul>
                       <div id="myTabContent" class="tab-content">
-                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
-                          <p>daily</p>
+                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content11" aria-labelledby="home-tab">
+                          <iframe src="/static/ldatopics/lda_daily.html" style="border:none;height:100%;width:80%;" ></iframe>
                         </div>
-                        <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content12" aria-labelledby="profile-tab">
                           <p>weekly</p>
                         </div>
-                        <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="profile-tab">
+                        <div role="tabpanel" class="tab-pane fade" id="tab_content13" aria-labelledby="profile-tab">
                           <p>monthly</p>
                         </div>
                       </div>
