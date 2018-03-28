@@ -25,7 +25,6 @@ consumer_secret = os.environ["TWITTER_CONSUMER_SECRET"]
 
 API_URL = "http://localhost:8000/streaming_api"
 
-
 #This is a basic listener that just posts whatever given to the URL
 class StdOutListener(StreamListener):
 
@@ -49,7 +48,7 @@ if __name__ == '__main__':
     auth.set_access_token(access_token, access_token_secret)
     stream = Stream(auth, l)
 
-    #This line filter Twitter Streams to capture data by the keywords: 'python', 'javascript', 'ruby'
+    #This line filter Twitter Streams to capture data by the keywords
     stream.filter(track=['@applesupport'])
 
 

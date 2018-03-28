@@ -14,15 +14,15 @@ class TwitterUser(models.Model):
 	updated_at = models.DateTimeField(auto_now=True)
 	
 	twitter_id = models.BigIntegerField(db_index=True) # Index to make searches quicker
-	screen_name = models.CharField(max_length=100,default=None, blank=True, null=True)
-	name = models.CharField(max_length=100,default=None, blank=True, null=True)
-	profile_picture = models.CharField(max_length=250,default=None, blank=True, null=True)
+	screen_name = models.CharField(max_length=250,default=None, blank=True, null=True)
+	name = models.CharField(max_length=250,default=None, blank=True, null=True)
+	profile_picture = models.TextField(default=None, blank=True, null=True)
 	location = models.CharField(max_length=250,default=None, blank=True, null=True)
-	description = models.CharField(max_length=250,default=None, blank=True, null=True)
+	description = models.TextField(default=None, blank=True, null=True)
 	time_zone = models.CharField(max_length=100,default=None, blank=True, null=True)
 	followers_count = models.BigIntegerField(default=None, blank=True, null=True)
 	friends_count = models.BigIntegerField(default=None, blank=True, null=True)
-	url = models.CharField(max_length=250,default=None, blank=True, null=True)
+	url = models.TextField(max_length=250,default=None, blank=True, null=True)
 
 	raw_response = JSONField(default=dict)
 	properties = JSONField(default=dict)
@@ -63,8 +63,8 @@ class Tweet(models.Model):
 	user = models.ForeignKey(TwitterUser)
 
 	tweet_id = models.BigIntegerField(db_index=True) # Index to make searches quicker
-	text = models.CharField(max_length=250,default=None, blank=True, null=True)
-	place = models.CharField(max_length=250,default=None, blank=True, null=True)
+	text = models.TextField(max_length=250,default=None, blank=True, null=True)
+	place = models.TextField(max_length=250,default=None, blank=True, null=True)
 	latitude = models.DecimalField(max_digits=9, decimal_places=6,default=None, blank=True, null=True)
 	longitude = models.DecimalField(max_digits=9, decimal_places=6,default=None, blank=True, null=True)
 	retweet_count = models.BigIntegerField(default=None, blank=True, null=True)

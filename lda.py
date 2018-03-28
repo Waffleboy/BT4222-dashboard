@@ -31,7 +31,7 @@ def run_lda(doc_clean,num_topics):
     doc_term_matrix = [dictionary.doc2bow(doc) for doc in doc_clean]
     lda = gensim.models.ldamodel.LdaModel
     ldamodel = lda(doc_term_matrix,num_topics=num_topics,id2word = dictionary,passes = 60)
-    return ldamodel
+    return ldamodel,dictionary,doc_term_matrix
 
 def pretty_print_results(ldamodel,num_topics,num_words):
     z = ldamodel.print_topics(num_topics=num_topics,num_words=num_words)
@@ -52,19 +52,15 @@ texts = pd.Series(["this is a random sentence","random too man idgi"])
 
 texts_cleaned = [clean(x).split() for x in texts]
 
-ldamodel  = run_lda(texts_cleaned,num_topics)
+ldamodel,dictionary,doc_term_matrix  = run_lda(texts_cleaned,num_topics)
+
 results = pretty_print_results(ldamodel,num_topics,num_words = 7)
 for entry in results:
     print(entry)
 print('\n')
 
-
+import pyLDAvis.gensim as gensimvis
 import pyLDAvis
 
-
- data = {'topic_term_dists': data_input['phi'],
-        'doc_topic_dists': data_input['theta'],
-        'doc_lengths': data_input['doc.length'],
-        'vocab': data_input['vocab'],
-        'term_frequency': data_input['term.frequency']}
-
+vis_data = gensimvis.prepare(ldamodel,doc_term_matrix, dictionary )
+pyLDAvis.save_html(vis_data,'file.html')

@@ -13,7 +13,7 @@ class ModelTestCase(TestCase):
 
 	def setUp(self):
 		global data
-		with open("test_response_data.json") as f:
+		with open("test_data/test_response_data.json") as f:
 			data = json.load(f)
 
 	def test_save_user(self):
