@@ -1,7 +1,7 @@
 # BT4222
 Saikang mod 102
 
-## Setup Instructions (optional - as long as you get it to work and you know what youre doing its fine)
+## Setup Instructions
 
 1. Install `anaconda` URL: https://docs.continuum.io/anaconda/install/
 2. Set up `conda` environment with `conda create env --new bt4222 python pip`
@@ -28,7 +28,17 @@ You now need to settle environment variables, and the database
   
   `ALTER USER djangouser CREATEDB;`
 
-3. Set up environment variables for conda (unfortunately not auto) follow instructions at https://conda.io/docs/user-guide/tasks/manage-environments.html#win-save-env-variables and set the only environment variable to `export DATABASE_URL='postgres://djangouser:password@localhost/bt4222db`
+3. Set up environment variables for conda (unfortunately not auto) follow instructions at https://conda.io/docs/user-guide/tasks/manage-environments.html#win-save-env-variables and set environment variables: 
+
+`export DATABASE_URL='postgres://djangouser:password@localhost/bt4222db`
+`export TWITTER_ACCESS_TOKEN="REDACTED"`
+`export TWITTER_ACCESS_SECRET="REDACTED"`
+`export TWITTER_CONSUMER_KEY="REDACTED"`
+`export TWITTER_CONSUMER_SECRET=REDACTED`
+`export DJANGO_POST_KEY=REDACTED`
+
+Make sure to do the same in `deactivate.d/env_vars`
+
 
 Install Heroku toolchain cli
 1. `https://devcenter.heroku.com/articles/heroku-cli`
