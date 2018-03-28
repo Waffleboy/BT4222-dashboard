@@ -31,10 +31,15 @@ You now need to settle environment variables, and the database
 3. Set up environment variables for conda (unfortunately not auto) follow instructions at https://conda.io/docs/user-guide/tasks/manage-environments.html#win-save-env-variables and set environment variables: 
 
 `export DATABASE_URL='postgres://djangouser:password@localhost/bt4222db`
+
 `export TWITTER_ACCESS_TOKEN="REDACTED"`
+
 `export TWITTER_ACCESS_SECRET="REDACTED"`
+
 `export TWITTER_CONSUMER_KEY="REDACTED"`
+
 `export TWITTER_CONSUMER_SECRET=REDACTED`
+
 `export DJANGO_POST_KEY=REDACTED`
 
 Make sure to do the same in `deactivate.d/env_vars`
