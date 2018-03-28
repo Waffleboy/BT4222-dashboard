@@ -34,6 +34,7 @@ class StdOutListener(StreamListener):
         data_json = json.loads(data)
         data_json["AUTH_KEY"] = os.environ["DJANGO_POST_KEY"]
         res = requests.post(API_URL,json=data_json)
+        
         return True
 
     def on_error(self, status):

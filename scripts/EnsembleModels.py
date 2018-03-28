@@ -18,9 +18,9 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
 
 #loading pre-prepared requirements
-vect_ml = load(open('vectorizer_ml.pkl', 'rb'))
-tokenizer_dl = load(open('tokenizer.pkl', 'rb'))
-embedded_seq = load(open('embedded_seq.pkl', 'rb'))
+vect_ml = load(open('./scripts/vectorizer_ML.pkl', 'rb'))
+tokenizer_dl = load(open('./scripts/tokenizer.pkl', 'rb'))
+#embedded_seq = load(open('embedded_seq.pkl', 'rb'))
 
 #text preprocessor class
 class textpreprocessor():

@@ -1,8 +1,15 @@
+import sys
+import os
+new_path = './scripts'
+if new_path not in sys.path:
+	sys.path.append(new_path)
+
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 import pandas as pd
 import datetime
 from collections import Counter,defaultdict
+from Ensemble import ensemble
 
 import logging
 logger = logging.getLogger(__name__)
@@ -84,13 +91,15 @@ class Tweet(models.Model):
 		if len(query) > 0:
 			return query.first()
 
+		senti = ensemble.predict(tweet_dict['text'])[0]
 		#TODO: Abstract out to a info extractor class
 		tweet_info = {'tweet_id':tweet_dict['id'],
 						'text':tweet_dict['text'],
 						'place':tweet_dict['place'],
 						'retweet_count':tweet_dict['retweet_count'],
 						'favorite_count':tweet_dict['favorite_count'],
-						'raw_response':tweet_dict
+						'raw_response':tweet_dict,
+						'sentiment': senti
 						}
 
 		coordinates = tweet_dict['coordinates']

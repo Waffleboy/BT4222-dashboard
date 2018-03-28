@@ -2,8 +2,23 @@ import numpy as np
 import pandas as pd
 from _pickle import load
 from keras.models import load_model
+import tensorflow as tf
 
 from EnsembleModels import ML_Models, textpreprocessor
+
+ml_models = load(open('./scripts/ml_models.pkl', 'rb'))
+
+dl_models = load_model('./scripts/dl_model.h5')
+dl_models._make_predict_function()
+
+ensembler = load_model('./scripts/ensembler_model.h5')
+ensembler._make_predict_function()
+
+tokenizer_dl = load(open('./scripts/tokenizer.pkl', 'rb'))
+
+preprocessor = textpreprocessor()
+
+graph = tf.get_default_graph()
 
 class Ensemble():
     def __init__(self, first_ML_layer, first_DL_layer, second_layer, preprocessor):
@@ -25,10 +40,13 @@ class Ensemble():
         
         x_ml = self._preprocess_x_DL(x)
         
-        for model in self.first_DL_layer:
-            y_pred = model.predict(x_ml)
-            new_x[:, curr_index:(curr_index + y_pred.shape[1])] = y_pred
-            curr_index = curr_index + y_pred.shape[1]
+        global graph
+
+        with graph.as_default():
+            for model in self.first_DL_layer:
+                y_pred = model.predict(x_ml)
+                new_x[:, curr_index:(curr_index + y_pred.shape[1])] = y_pred
+                curr_index = curr_index + y_pred.shape[1]
             
         new_x = np.reshape(new_x, new_x.shape + (1,))
         
@@ -41,7 +59,10 @@ class Ensemble():
             xtest = pd.Series(xtest)
         
         new_xtest = self.predict_first_layer(xtest)
-        ypred = self.second_layer.predict(new_xtest).argmax(axis = -1)
+
+        global graph
+        with graph.as_default():
+            ypred = self.second_layer.predict(new_xtest).argmax(axis = -1)
         
         return pd.Series(ypred).map(y_mapper)
     
@@ -51,13 +72,6 @@ class Ensemble():
         x = self.textpreprocessor.pad_x(x, 40)
         
         return x
-    
-ml_models = load(open('ml_models.pkl', 'rb'))
-dl_models = load_model('dl_model.h5')
-ensembler = load_model('ensembler_model.h5')
-tokenizer_dl = load(open('tokenizer.pkl', 'rb'))
-
-preprocessor = textpreprocessor()
 
 ensemble = Ensemble(ml_models, [dl_models], ensembler, preprocessor)
 

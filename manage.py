@@ -19,4 +19,5 @@ if __name__ == "__main__":
                 "forget to activate a virtual environment?"
             )
         raise
+    from scripts.EnsembleModels import ML_Models, textpreprocessor
     execute_from_command_line(sys.argv)
