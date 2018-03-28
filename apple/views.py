@@ -29,7 +29,7 @@ def customers(request):
 	# get list of customers, 3 per row?
 	return render(request, 'customers.html', context)
 
-
+##TODO: Move to seperate thread
 @csrf_exempt 
 def stream_api_post(request):
 	if request.method == 'POST':
