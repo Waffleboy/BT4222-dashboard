@@ -12,6 +12,10 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 import os
 import requests
+import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 #Variables that contains the user credentials to access Twitter API
 access_token = os.environ["TWITTER_ACCESS_TOKEN"]
@@ -21,13 +25,16 @@ consumer_secret = os.environ["TWITTER_CONSUMER_SECRET"]
 
 API_URL = "http://localhost:8000/streaming_api"
 
+
 #This is a basic listener that just posts whatever given to the URL
 class StdOutListener(StreamListener):
 
     def on_data(self, data):
         global API_URL
-        data["AUTH_KEY"] = os.environ["DJANGO_POST_KEY"]
-        requests.post(API_URL,json=data)
+        logger.info("New incoming tweet!")
+        data_json = json.loads(data)
+        data_json["AUTH_KEY"] = os.environ["DJANGO_POST_KEY"]
+        res = requests.post(API_URL,json=data_json)
         return True
 
     def on_error(self, status):

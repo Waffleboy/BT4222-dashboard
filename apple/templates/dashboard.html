@@ -70,13 +70,13 @@
                       </ul>
                       <div id="myTabContent" class="tab-content">
                         <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
-                          <p>daily</p>
+                          <img src="/static/wordclouds/daily.png">
                         </div>
                         <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="profile-tab">
-                          <p>weekly</p>
+                          <img src="/static/wordclouds/weekly.png">
                         </div>
                         <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="profile-tab">
-                          <p>monthly</p>
+                          <img src="/static/wordclouds/monthly.png">
                         </div>
                       </div>
                     </div>
@@ -135,8 +135,6 @@
             </div>
           </div>
 
-
-
           <div class="row">
           	<div class="col-md-4 col-sm-4 col-xs-4">
                   <div class="x_panel">
@@ -159,11 +157,13 @@
                       </ul>
                       <div class="clearfix"></div>
                     </div>
+
+
                     <div class="x_content">
                       <p class="text-muted font-13 m-b-30">
                         <button>AUTOREPLY ALL</button>
                       </p>
-  					
+  					         
                       <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
                         <thead>
                           <tr>
@@ -175,13 +175,15 @@
                           </tr>
                         </thead>
                         <tbody>
+                          {% for tweets in positive_tweets %}
                           <tr>
-                            <td>24/3/2018 13:45</td>
-                            <td>potato</td>
-                            <td>Such love for apple!</td>
-                            <td>LOW</td>
+                            {% for item in tweets %}
+                              <td>{{item}}</td>
+                            {% endfor %}
                             <td><button>REPLY</button></td>
                           </tr>
+                          {% endfor %}
+
                         </tbody>
                       </table>
   					
@@ -225,13 +227,14 @@
                           </tr>
                         </thead>
                         <tbody>
+                          {% for tweets in positive_tweets %}
                           <tr>
-                            <td>24/3/2018 13:45</td>
-                            <td>potato</td>
-                            <td>Such love for apple!</td>
-                            <td>LOW</td>
+                            {% for item in tweets %}
+                              <td>{{item}}</td>
+                            {% endfor %}
                             <td><button>REPLY</button></td>
                           </tr>
+                          {% endfor %}
                         </tbody>
                     </table>
                   </div>
@@ -272,12 +275,14 @@
                           </tr>
                         </thead>
                         <tbody>
+                          {% for tweets in other_tweets %}
                           <tr>
-                            <td>24/3/2018 13:45</td>
-                            <td>potato</td>
-                            <td>Such love for apple!</td>
+                            {% for item in tweets %}
+                              <td>{{item}}</td>
+                            {% endfor %}
                             <td><button>REPLY</button></td>
                           </tr>
+                          {% endfor %}
                         </tbody>
                     </table>
                   </div>
