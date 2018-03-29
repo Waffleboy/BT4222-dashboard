@@ -68,19 +68,22 @@ def profile(request):
 			update_stat(screenname, reply, tweet_id)
 
 			form = replyForm()
+	#To hide errors from multiple get requests when loading new page
+	try:
+		user = TwitterUser.objects.get(screen_name = screenname)
+		tweet = Tweet.objects.get(tweet_id = tweet_id)
 
-	user = TwitterUser.objects.get(screen_name = screenname)
-	tweet = Tweet.objects.get(tweet_id = tweet_id)
-
-	context['profile_pic'] = user.profile_picture
-	context['screen_name'] = user.screen_name
-	context['followers'] = user.followers_count
-	context['friends'] = user.friends_count
-	context['tweet_id'] = tweet.tweet_id
-	context['tweet'] = tweet.text
-	context['form'] = form
-	#context['age'] = user.age
-	#context['gender'] = user.gender
+		context['profile_pic'] = user.profile_picture
+		context['screen_name'] = user.screen_name
+		context['followers'] = user.followers_count
+		context['friends'] = user.friends_count
+		context['tweet_id'] = tweet.tweet_id
+		context['tweet'] = tweet.text
+		context['form'] = form
+		#context['age'] = user.age
+		#context['gender'] = user.gender
+	except:
+		pass
 	return render(request, 'profile.html', context)
 
 ##TODO: Move to seperate thread
