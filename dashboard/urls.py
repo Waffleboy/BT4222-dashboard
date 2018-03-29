@@ -16,11 +16,12 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from apple.views import index,customers,stream_api_post
+from apple.views import index,customers,stream_api_post,profile
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^customers', customers),
     url(r'streaming_api',stream_api_post),
+    url(r'^profile', profile),
     url(r'^',  index)
 ]
