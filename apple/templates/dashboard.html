@@ -118,7 +118,7 @@
                       </ul>
                       <div id="myTabContent" class="tab-content">
                         <div role="tabpanel" class="tab-pane fade active in" id="tab_content11" aria-labelledby="home-tab">
-                          <iframe src="/static/ldatopics/lda_daily.html" style="border:none;height:100%;width:80%;" ></iframe>
+                          <iframe src="/static/ldatopics/lda_daily.html" style="border:none;height:100%;width:100%;" ></iframe>
                         </div>
                         <div role="tabpanel" class="tab-pane fade" id="tab_content12" aria-labelledby="profile-tab">
                           <p>weekly</p>
@@ -177,7 +177,13 @@
                           {% for tweets in positive_tweets %}
                           <tr>
                             {% for item in tweets %}
-                              <td>{{item}}</td>
+                            {% if forloop.counter < 5 %}
+                            {% if forloop.counter == 2 %}
+                              <td><a href = 'profile/?{{tweets.1}}?{{tweets.4}}'> {{item}} </a> </td>
+                            {% else %}
+                              <td> {{item}} </td>
+                            {% endif %}
+                            {% endif %}    
                             {% endfor %}
                             <td><button>REPLY</button></td>
                           </tr>
@@ -229,7 +235,13 @@
                           {% for tweets in negative_tweets %}
                           <tr>
                             {% for item in tweets %}
-                              <td>{{item}}</td>
+                            {% if forloop.counter < 5 %}
+                            {% if forloop.counter == 2 %}
+                              <td><a href = 'profile/?{{tweets.1}}?{{tweets.4}}'>{{item}} </a> </td>
+                            {% else %}
+                              <td> {{item}} </td>
+                            {% endif %}   
+                            {% endif %}
                             {% endfor %}
                             <td><button>REPLY</button></td>
                           </tr>
