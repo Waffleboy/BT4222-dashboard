@@ -110,6 +110,21 @@ def profile(request):
 		pass
 	return render(request, 'profile.html', context)
 
+@csrf_exempt
+def resolve_api_post(request):
+	if request.method == 'POST':
+		tweet_id = request.POST['tweet_id']
+		tweet = Tweet.objects.filter(tweet_id = int(tweet_id)).first()
+		if not tweet:
+			logger.warn("Invalid tweet ID for {}".format(tweet_id))
+			return HttpResponse("Invalid tweet ID")
+		tweet.resolved = True 
+		tweet.save()
+		response = {'Resolved':True,
+					'tweet_id':'{}'.format(tweet_id)}
+		return HttpResponse(json.dumps(response))
+	return HttpResponse("Invalid operands")
+
 ##TODO: Move to seperate thread
 @csrf_exempt 
 def stream_api_post(request):

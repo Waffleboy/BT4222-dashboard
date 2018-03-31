@@ -171,21 +171,28 @@
                             <th>Tweet</th>
                             <th>Priority</th>
                             <th>Autoreply</th>
+                            <th>Resolve</th>
                           </tr>
                         </thead>
                         <tbody>
                           {% for tweets in positive_tweets %}
                           <tr>
-                            {% for item in tweets %}
-                            {% if forloop.counter < 5 %}
-                            {% if forloop.counter == 2 %}
-                              <td><a href = 'profile/?{{tweets.1}}?{{tweets.4}}'> {{item}} </a> </td>
-                            {% else %}
-                              <td> {{item}} </td>
-                            {% endif %}
-                            {% endif %}    
-                            {% endfor %}
+                          {% for item in tweets %}
+                              {% if forloop.counter < 5 %}
+                                {% if forloop.counter == 2 %}
+                                  <td><a href = 'profile/?{{tweets.1}}?{{tweets.4}}'> {{item}} </a> </td>
+                                {% else %}
+                                  <td> {{item}} </td>
+                                {% endif %}
+                              {% endif %}    
+                          {% endfor %}
                             <td><button>REPLY</button></td>
+                            <td>
+                              <form action = "/resolve_api" method = "post" target="_blank">
+                                <input type="hidden" name="tweet_id" value="{{tweets.4}}" />
+                                <button type="submit", formmethod="post">RESOLVE</button>
+                              </form>
+                            </td>
                           </tr>
                           {% endfor %}
 
@@ -229,6 +236,7 @@
                             <th>Tweet</th>
                             <th>Priority</th>
                             <th>Autoreply</th>
+                            <th>Resolve</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -244,6 +252,12 @@
                             {% endif %}
                             {% endfor %}
                             <td><button>REPLY</button></td>
+                            <td>
+                              <form action = "/resolve_api" method = "post" target="_blank">
+                                <input type="hidden" name="tweet_id" value="{{tweets.4}}" />
+                                <button type="submit", formmethod="post">RESOLVE</button>
+                              </form>
+                            </td>
                           </tr>
                           {% endfor %}
                         </tbody>

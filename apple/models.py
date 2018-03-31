@@ -31,6 +31,10 @@ class TwitterUser(models.Model):
 	friends_count = models.BigIntegerField(default=None, blank=True, null=True)
 	url = models.TextField(max_length=250,default=None, blank=True, null=True)
 
+	age = models.CharField(max_length=250,default=None, blank=True, null=True)
+	interest = models.CharField(max_length=250,default=None, blank=True, null=True)
+	gender = models.CharField(max_length=250,default=None, blank=True, null=True)
+
 	raw_response = JSONField(default=dict)
 	properties = JSONField(default=dict)
 
@@ -78,6 +82,7 @@ class Tweet(models.Model):
 	favorite_count = models.BigIntegerField(default=None, blank=True, null=True)
 
 	sentiment = models.CharField(max_length=250,default=None, blank=True, null=True)
+	resolved = models.BooleanField(default=False)
 
 	raw_response = JSONField(default=dict)
 	properties = JSONField(default=dict)
