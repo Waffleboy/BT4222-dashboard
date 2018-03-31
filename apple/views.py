@@ -68,7 +68,6 @@ def profile(request):
 
 	else:
 		screenname = request.POST['screen_name']
-		print(request.POST)
 		user = TwitterUser.objects.get(screen_name = screenname)
 
 		if 'tweet_id' in request.POST.keys():
