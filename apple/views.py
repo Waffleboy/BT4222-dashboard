@@ -15,6 +15,7 @@ from apple import views_helper
 
 from apple.forms import replyForm
 from apple.tweet_reply import update_stat
+from apple.customer_helper import get_user_info
 
 import logging
 logger = logging.getLogger(__name__)
@@ -42,7 +43,10 @@ def index(request):
 def customers(request):
 	context = {}
 
-	# get list of customers, 3 per row?
+	all_users = TwitterUser.objects.all()
+	user_info = get_user_info(all_users)
+
+	context['users'] = user_info
 	return render(request, 'customers.html', context)
 
 def profile(request):
