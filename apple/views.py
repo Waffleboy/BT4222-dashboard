@@ -15,7 +15,7 @@ from apple import views_helper
 
 from apple.forms import replyForm
 from apple.tweet_reply import update_stat
-from apple.customer_helper import get_user_info
+from apple.customer_helper import get_user_info, get_user_tweets
 
 import logging
 logger = logging.getLogger(__name__)
@@ -26,9 +26,6 @@ def index(request):
 	# get:
 	# 1) daily / weekly / monthly wordcloud info. this should be a pregenerated image, not run on demand
 	# 2) topic modelling, same.
-	# 3) positive tweets
-	# 4) negative tweets
-	# 5) other tweets
 
 	tweets = Tweet.objects.all()
 	positive_tweets = tweets.filter(sentiment='positive')
@@ -50,7 +47,7 @@ def customers(request):
 	return render(request, 'customers.html', context)
 
 def profile(request):
-	context = {}
+	context = {'redirected': 0}
 	
 	if request.method == "GET":
 		request_dict = list(dict(request.GET).keys())
@@ -61,29 +58,48 @@ def profile(request):
 			screenname = dict_content.split('?')[0]
 			tweet_id = dict_content.split('?')[1]
 
+			tweet = Tweet.objects.get(tweet_id = tweet_id)
+			user = TwitterUser.objects.get(screen_name = screenname)
+
+			context['tweet_id'] = tweet.tweet_id
+			context['tweet'] = tweet.text
+
+		context['form'] = form
+
 	else:
-		form = replyForm(request.POST)
-
-		tweet_id = request.POST['tweet_id']
 		screenname = request.POST['screen_name']
+		print(request.POST)
+		user = TwitterUser.objects.get(screen_name = screenname)
 
-		if form.is_valid():
-			reply = form.cleaned_data['reply']
-			update_stat(screenname, reply, tweet_id)
+		if 'tweet_id' in request.POST.keys():
+			form = replyForm(request.POST)
 
-			form = replyForm()
+			tweet_id = request.POST['tweet_id']
+			tweet = Tweet.objects.get(tweet_id = tweet_id)
+
+			context['tweet_id'] = tweet.tweet_id
+			context['tweet'] = tweet.text
+
+			if form.is_valid():
+				reply = form.cleaned_data['reply']
+				update_stat(screenname, reply, tweet_id)
+
+				form = replyForm()
+
+			context['form'] = form
+
+		else:
+			context['tweets'] = get_user_tweets(user)
+			context['redirected'] = 1
+
 	#To hide errors from multiple get requests when loading new page
 	try:
-		user = TwitterUser.objects.get(screen_name = screenname)
-		tweet = Tweet.objects.get(tweet_id = tweet_id)
-
 		context['profile_pic'] = user.profile_picture
 		context['screen_name'] = user.screen_name
 		context['followers'] = user.followers_count
 		context['friends'] = user.friends_count
-		context['tweet_id'] = tweet.tweet_id
-		context['tweet'] = tweet.text
-		context['form'] = form
+		
+		
 		#context['age'] = user.age
 		#context['gender'] = user.gender
 	except:

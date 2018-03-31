@@ -17,3 +17,12 @@ def get_user_info(twitteruser_set):
 		information[username]['initial'] = username[0].lower()
 
 	return information
+
+def get_user_tweets(twitteruser):
+	tweets = {}
+	tweets_list = twitteruser.tweet_set.all()
+
+	for tweet in tweets_list:
+		tweets[tweet.created_at.strftime("%d/%m /%Y %M:%S")] = tweet.text
+
+	return tweets

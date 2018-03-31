@@ -43,7 +43,7 @@
                           </div>
                         </div>
                       </div>
-
+  {% if redirected == 0 %}
 	<div class="col-md-12 col-sm-12 col-xs-12">
 		<div class="x_panel">
 			<div class="x_title">
@@ -71,4 +71,19 @@
 		  </form>
 		</div>
 	</div>
+
+  {% else %}
+
+  <div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="x_panel">
+      <div class="x_title">
+        <h2> Tweets </h2>
+        <div class="clearfix"></div>
+      </div>
+      <div class="x_content">
+      {% for date, tweet in tweets.items %}
+        <p> <strong>{{date}}:</strong> {{tweet}} </p>
+      {% endfor %}
+      </div>
+  {% endif %}
 {% endblock %}
