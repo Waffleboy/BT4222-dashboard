@@ -73,3 +73,4 @@ wit==4.3.0
 wordcloud
 tweepy
 keras==2.1.3
+nltk
