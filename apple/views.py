@@ -54,17 +54,22 @@ def profile(request):
 		form = replyForm()
 
 		if len(request_dict) != 0:
-			dict_content = request_dict[0]
-			screenname = dict_content.split('?')[0]
-			tweet_id = dict_content.split('?')[1]
-
-			tweet = Tweet.objects.get(tweet_id = tweet_id)
+			dict_content = request_dict[0].split('?')
+			screenname = dict_content[0]
 			user = TwitterUser.objects.get(screen_name = screenname)
+			if len(dict_content) == 2:
+				tweet_id = dict_content[1]
 
-			context['tweet_id'] = tweet.tweet_id
-			context['tweet'] = tweet.text
+				tweet = Tweet.objects.get(tweet_id = tweet_id)
+				
 
-		context['form'] = form
+				context['tweet_id'] = tweet.tweet_id
+				context['tweet'] = tweet.text
+
+				context['form'] = form
+			else:
+				context['tweets'] = get_user_tweets(user)
+				context['redirected'] = 1
 
 	else:
 		screenname = request.POST['screen_name']
