@@ -10,6 +10,7 @@ import pandas as pd
 import datetime
 from collections import Counter,defaultdict
 from Ensemble import ensemble
+from apple.service_modules import priority_module
 
 import logging
 logger = logging.getLogger(__name__)
@@ -81,6 +82,7 @@ class Tweet(models.Model):
 	retweet_count = models.BigIntegerField(default=None, blank=True, null=True)
 	favorite_count = models.BigIntegerField(default=None, blank=True, null=True)
 
+	priority = models.CharField(max_length=250,default=None, blank=True, null=True)
 	sentiment = models.CharField(max_length=250,default=None, blank=True, null=True)
 	resolved = models.BooleanField(default=False)
 
@@ -117,6 +119,8 @@ class Tweet(models.Model):
 		tweet_info['user'] = user
 
 		new_tweet = Tweet(**tweet_info)
+		priority_level = priority_module.get_priority_for_tweet(new_tweet)
+		new_tweet.priority = priority_level
 		new_tweet.save()
 		return new_tweet
 
