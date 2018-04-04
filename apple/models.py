@@ -1,9 +1,12 @@
 import sys
 import os
 new_path = './scripts'
+new_path2 = './Interest'
 if new_path not in sys.path:
 	sys.path.append(new_path)
-
+if new_path2 not in sys.path:
+	sys.path.append(new_path2)
+	
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 import pandas as pd
@@ -11,6 +14,7 @@ import datetime
 from collections import Counter,defaultdict
 from Ensemble import ensemble
 from apple.service_modules import priority_module
+from predict_user import predictUser
 
 import logging
 logger = logging.getLogger(__name__)
@@ -48,6 +52,7 @@ class TwitterUser(models.Model):
 		if len(query) > 0:
 			return query.first()
 
+		interest = predictUser(user_response_dict['screen_name'])
 		#TODO: Abstract out to a info extractor class
 		user_info = {'twitter_id': user_response_dict['id'],
 					  'screen_name':user_response_dict['screen_name'],
@@ -59,7 +64,8 @@ class TwitterUser(models.Model):
 					 'followers_count':user_response_dict['followers_count'],
 					 'friends_count':user_response_dict['friends_count'],
 					 'url':user_response_dict['url'],
-					 'raw_response':user_response_dict
+					 'raw_response':user_response_dict,
+					 'interest': interest
 					 }
 
 		new_user = TwitterUser(**user_info)

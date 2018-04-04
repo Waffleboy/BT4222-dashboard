@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Mar 28 20:57:56 2018
-
-@author: dion
-"""
-
 import csv,re,random,tweepy,datetime
 import pandas as pd
 import numpy as np
@@ -23,8 +16,9 @@ from keras.preprocessing import sequence
 from keras.preprocessing.text import one_hot
 from keras.preprocessing.text import text_to_word_sequence
 from collections import Counter
+import tensorflow as tf
 
-api_csv = pd.read_csv("apiKeys.csv")
+api_csv = pd.read_csv(r"Interest/apikeys.csv")
 accesstokenlist=[]
 for row in api_csv.iterrows():
     index, data = row
@@ -106,7 +100,10 @@ def predictUser(user,numTweets=500):
     userTweets = processTweets(userTweets)
     data = tokenizer.texts_to_sequences(userTweets)
     data = sequence.pad_sequences(data, maxlen = maxTweetLength, padding = 'post')
-    results = model.predict(data)
+
+    with graph.as_default():
+        results = model.predict(data)
+
     results = np.argmax(results,axis=1)
     interest_key = Counter(results)
     interest_key = interest_key.most_common(1)[0][0]
@@ -115,17 +112,22 @@ def predictUser(user,numTweets=500):
 
 def load_cnn():
     global tokenizer
-    with open('tokenizer30.pickle', 'rb') as handle:
+    with open('Interest/tokenizer30.pickle', 'rb') as handle:
         tokenizer = pickle.load(handle)
     tokenizer.oov_token = None
     global embeddings_matrix    
-    with open('embeddings30.pickle', 'rb') as handle:
+    with open('Interest/embeddings30.pickle', 'rb') as handle:
         embeddings_matrix = pickle.load(handle)
     global model
-    model = load_model('bestmodel.h5')
+    model = load_model('Interest/bestmodel.h5')
+    model._make_predict_function()
+    global graph
+    graph = tf.get_default_graph()
     
 load_cnn()
-res = predictUser('mikaimcdermott',10000)
-print(res)
+
+if __name__ == '__main__':
+    res = predictUser('mikaimcdermott',10000)
+    print(res)
 
 

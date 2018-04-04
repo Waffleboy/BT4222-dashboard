@@ -102,6 +102,7 @@ def profile(request):
 		context['screen_name'] = user.screen_name
 		context['followers'] = user.followers_count
 		context['friends'] = user.friends_count
+		context['interest'] = user.interest
 		
 		
 		#context['age'] = user.age
