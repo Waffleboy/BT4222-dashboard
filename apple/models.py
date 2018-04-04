@@ -6,7 +6,7 @@ if new_path not in sys.path:
 	sys.path.append(new_path)
 if new_path2 not in sys.path:
 	sys.path.append(new_path2)
-	
+
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 import pandas as pd
