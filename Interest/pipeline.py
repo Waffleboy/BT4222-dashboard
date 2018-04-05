@@ -7,6 +7,8 @@ from oauth2client.client import GoogleCredentials
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from sklearn.model_selection import train_test_split
+from collections import Counter
+import tensorflow as tf
 
 # import remaining libraries
 from keras.models import Sequential
@@ -20,49 +22,8 @@ import pickle
 import numpy as np
 import pandas as pd
 from nltk.corpus import stopwords
-
 from sklearn.manifold import TSNE
 
-## authentication to Google Drive
-# auth.authenticate_user()
-# gauth = GoogleAuth()
-# gauth.credentials = GoogleCredentials.get_application_default()
-# drive = GoogleDrive(gauth)
-#
-# ## find all files within your own Google Drive
-# listed = drive.ListFile({'q': "title contains '.csv' or title contains 'h5' or title contains 'pickle'"}).GetList()
-# for file in listed:
-#   print('title {}, id {}'.format(file['title'], file['id']))
-#
-# test_id = '16j5L_2z3vHp9ZTU2ZwQ7Qi9lggUZmb0f'
-# age_model = '15sEgas1yfanq92KVFhbLyjkEk0JOn5LH'
-# age_embeddings = '10_BX4TEShBsvvSh48zJXQ1-DZbSdX2uh'
-# age_tokenizer = '1pFZGlZsni33W5eL06OAJbVzDevnPpNLc'
-#
-# download_test = drive.CreateFile({'id': test_id})
-# download_model = drive.CreateFile({'id': age_model})
-# download_embeddings = drive.CreateFile({'id': age_embeddings})
-# download_tokenizer = drive.CreateFile({'id': age_tokenizer})
-#
-# download_test.GetContentFile('test.csv')
-# download_model.GetContentFile('bestmodelage.h5')
-# download_embeddings.GetContentFile('embeddings30age.pickle')
-# download_tokenizer.GetContentFile('tokenizer30age.pickle')
-#
-# # list files on colab drive
-# !ls
-#
-# """## Split testing data"""
-#
-# test = pd.read_csv('test.csv').loc[:, ['tweets', 'age', 'gender']]
-#
-# # for gender model
-# test_X, test_y_gender = test['tweets'], test['gender']
-#
-# print(test_X.shape)
-# print(test_y_gender.shape)
-
-"""## Load models"""
 
 # will change this to apiKeys.csv
 accesstokenlist=[]
@@ -135,9 +96,9 @@ predictionDic = {0:'Food',1:'Music',2:'News',3:'Politics',4:'Soccer',5:'Tech',6:
 predictionAge = {0:"Young", 1:"Middle Aged", 2:"Elderly"}
 predictionGender = {0:"Female", 1:"Male"}
 
-# input: user screen name
+# input: user screen name, number of tweets model objects
 # output: [interest, age, gender]
-def predictUser(user,numTweets=500):
+def predictUser(user,numTweets=500, interest_model, age_model, gender_model):
 
     # list of tweets
     userTweets = extractTweets(user,numTweets) # input number of tweets to pull as desired (>= 200)
@@ -147,20 +108,30 @@ def predictUser(user,numTweets=500):
     data = sequence.pad_sequences(data, maxlen = maxTweetLength, padding = 'post')
 
     # interest
-    results = model.predict(data)
+    results = interest_model.predict(data)
     results = np.argmax(results,axis=1)
     interest_key = Counter(results)
     interest_key = interest_key.most_common(1)[0][0]
     interest = predictionDic.get(interest_key)
 
     # age
-    age = 0
+    # TO-DO: check if format of input data (embeddings?) for model is correct
+    age_results = age_model.predict(data)
+    age_results = np.argmax(age_results, axis=1)
+    predicted_age_count = Counter(age_results)
+    predicted_age_key = predicted_age_count.most_common(1)[0][0]
+    age = predictionAge.get(predicted_age_key)
 
     # gender
-    gender = 0
+    gender_results = gender_model.predict(data)
+    gender_results = np.argmax(gender_results, axis=1)
+    predicted_gender_count = Counter(gender_results)
+    predicted_gender_key = predicted_gender_count.most_common(1)[0][0]
+    age = predictionGender.get(predicted_gender_key)
 
     return [interest, age, gender]
 
+# TO-DO: Check if model has to be loaded into a variable
 # input: "","age" or "gender", "" defaults to Dion's interest model
 def loadCNN(model_type):
 
@@ -173,6 +144,7 @@ def loadCNN(model_type):
   with open('embeddings30{}.pickle'.format(model_type), 'rb') as handle:
       embeddings_matrix = pickle.load(handle)
 
+  # TO-DO: Check if model architecture needs to change.
   if model_type=="age" or model_type=="gender":
     model_glove = Sequential()
     model_glove.add(Embedding(vocabulary_size, 50, input_length=5000, \
@@ -186,5 +158,3 @@ def loadCNN(model_type):
   global model
   model = load_model('bestmodel{}.h5'.format(model_type))
   print(model_type + " loaded")
-
-loadCNN("age") # corrupted file
