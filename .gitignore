@@ -92,3 +92,5 @@ scripts/*.h5
 scripts/*.pkl
 
 interest/apikeys.csv
+
+.DS_Store
