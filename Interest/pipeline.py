@@ -75,8 +75,13 @@ def extractTweets(user,numOfTweets=500):
     listOfTweets = [tweet.text for tweet in listOfTweets]
     return listOfTweets
 
-global maxTweetLength
-maxTweetLength = 141
+
+global interest_maxTweetLength
+interest_maxTweetLength = 141
+global age_maxTweetLength
+age_maxTweetLength = 30
+# TO-DO create gender_maxTweetLength
+
 
 # to decode prediction results
 global predictionDic
@@ -86,27 +91,27 @@ predictionDic = {0:'Food',1:'Music',2:'News',3:'Politics',4:'Soccer',5:'Tech',6:
 predictionAge = {0:"Young", 1:"Middle Aged", 2:"Elderly"}
 predictionGender = {0:"Female", 1:"Male"}
 
-# input: user screen name, number of tweets model objects
+# input: user screen name
 # output: [interest, age, gender]
-def predictUser(user,numTweets=500, interest_model, age_model, gender_model):
+def predictUser(user,numTweets=500):
 
     # list of tweets
     userTweets = extractTweets(user,numTweets) # input number of tweets to pull as desired (>= 200)
     userTweets = processTweets(userTweets)
-    # tokenize and create sequence
-    data = tokenizer.texts_to_sequences(userTweets)
-    data = sequence.pad_sequences(data, maxlen = maxTweetLength, padding = 'post')
 
     # interest
-    results = interest_model.predict(data)
+    interest_data = interest_tokenizer.texts_to_sequences(userTweets)
+    interest_data = sequence.pad_sequences(interest_data, maxlen = interest_maxTweetLength, padding = 'post')
+    results = interest_model.predict(interest_data)
     results = np.argmax(results,axis=1)
     interest_key = Counter(results)
     interest_key = interest_key.most_common(1)[0][0]
     interest = predictionDic.get(interest_key)
 
     # age
-    # TO-DO: check if format of input data (embeddings?) for model is correct
-    age_results = age_model.predict(data)
+    age_data = age_tokenizer.texts_to_sequences(userTweets)
+    age_data = sequence.pad_sequences(age_data, maxlen = age_maxTweetLength, padding = 'post')
+    age_results = age_model.predict(age_data)
     age_results = np.argmax(age_results, axis=1)
     predicted_age_count = Counter(age_results)
     predicted_age_key = predicted_age_count.most_common(1)[0][0]
@@ -125,27 +130,27 @@ def predictUser(user,numTweets=500, interest_model, age_model, gender_model):
 # load interest model
 # from dion's predict_user.py
 def load_cnn_interest():
-    global tokenizer
+    global interest_tokenizer
+    global interest_embeddings_matrix
+    global interest_model
 
     # .pickle files for interest model
     with open('tokenizer30.pickle', 'rb') as handle:
-        tokenizer = pickle.load(handle)
-    tokenizer.oov_token = None
-    global embeddings_matrix
+        interest_tokenizer = pickle.load(handle)
+    interest_tokenizer.oov_token = None
     with open('embeddings30.pickle', 'rb') as handle:
-        embeddings_matrix = pickle.load(handle)
-    global interest_model
+        interest_embeddings_matrix = pickle.load(handle)
     interest_model = load_model('bestmodel.h5')
     print("loaded interest model")
 
 # load age model
 def load_cnn_age():
-    global tokenizer
-    global embeddings_matrix
+    global age_tokenizer
+    global age_embeddings_matrix
     global age_model
 
     # pkl files for age model
-    tokenizer = load(open('tokenizer30age.pkl', 'rb'))
-    embeddings_matrix = load(open('embeddings30age.pkl', 'rb'))
+    age_tokenizer = load(open('tokenizer30age.pkl', 'rb'))
+    age_embeddings_matrix = load(open('embeddings30age.pkl', 'rb'))
     age_model = load_model('bestmodelage.h5')
     print("loaded age model")
