@@ -1,29 +1,19 @@
-## install and import libraries
-import pandas as pd
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
-from google.colab import auth
-from oauth2client.client import GoogleCredentials
-from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
-from sklearn.model_selection import train_test_split
-from collections import Counter
-import tensorflow as tf
-
 # import remaining libraries
 from keras.models import Sequential
 from keras.layers import Dense, Flatten, LSTM, Conv1D, MaxPooling1D, Dropout, Activation
 from keras.layers.embeddings import Embedding
-
-# Others
+from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences
+from sklearn.model_selection import train_test_split
+from sklearn.manifold import TSNE
+from collections import Counter
 import nltk
+from nltk.corpus import stopwords
 import string
 import pickle
+from _pickle import dump, load
 import numpy as np
 import pandas as pd
-from nltk.corpus import stopwords
-from sklearn.manifold import TSNE
-
 
 # will change this to apiKeys.csv
 accesstokenlist=[]
@@ -131,30 +121,31 @@ def predictUser(user,numTweets=500, interest_model, age_model, gender_model):
 
     return [interest, age, gender]
 
-# TO-DO: Check if model has to be loaded into a variable
-# input: "","age" or "gender", "" defaults to Dion's interest model
-def loadCNN(model_type):
+# load models
+# load interest model
+# from dion's predict_user.py
+def load_cnn_interest():
+    global tokenizer
 
-  global tokenizer
-  with open('tokenizer30{}.pickle'.format(model_type), 'rb') as handle:
-      tokenizer = pickle.load(handle)
-  tokenizer.oov_token = None
+    # .pickle files for interest model
+    with open('tokenizer30.pickle', 'rb') as handle:
+        tokenizer = pickle.load(handle)
+    tokenizer.oov_token = None
+    global embeddings_matrix
+    with open('embeddings30.pickle', 'rb') as handle:
+        embeddings_matrix = pickle.load(handle)
+    global interest_model
+    interest_model = load_model('bestmodel.h5')
+    print("loaded interest model")
 
-  global embeddings_matrix
-  with open('embeddings30{}.pickle'.format(model_type), 'rb') as handle:
-      embeddings_matrix = pickle.load(handle)
+# load age model
+def load_cnn_age():
+    global tokenizer
+    global embeddings_matrix
+    global age_model
 
-  # TO-DO: Check if model architecture needs to change.
-  if model_type=="age" or model_type=="gender":
-    model_glove = Sequential()
-    model_glove.add(Embedding(vocabulary_size, 50, input_length=5000, \
-                              weights=[embedding_matrix], trainable=False))
-    model_glove.add(Dropout(0.2))
-    model_glove.add(Conv1D(64, 5, activation='relu'))
-    model_glove.add(MaxPooling1D(pool_size=4))
-    model_glove.add(LSTM(100))
-
-  # load model
-  global model
-  model = load_model('bestmodel{}.h5'.format(model_type))
-  print(model_type + " loaded")
+    # pkl files for age model
+    tokenizer = load(open('tokenizer30age.pkl', 'rb'))
+    embeddings_matrix = load(open('embeddings30age.pkl', 'rb'))
+    age_model = load_model('bestmodelage.h5')
+    print("loaded age model")
