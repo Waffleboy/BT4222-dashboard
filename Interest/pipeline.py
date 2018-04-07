@@ -23,6 +23,12 @@ accesstokenlist.append(['Ylj8Iadlj9G6gP5NSlg1zd6jh','lpT0ayT2iRicrNmpIkUJVWXJWKg
 accesstokenlist.append(['n95HW5GEBFgvabqEAJHpfUotd','CsKcATAR6RDrjNQRfvtANAIUph0QwfiGv6pWtndOAJVRuHj1Rw','3922360932-NZsAqG12uu3f7xobVXF1VR0JQPpFoRvLjrK8OsL','atfRNC90EnJmEWeW9BkIlSkb67VjXwfK69x7hKceBUSH2'])
 accesstokenlist.append(['7VzkryGJd0z8ClcWKoeImN4cb','fv0hmCRkSl8rgcnyduVM2t79A7dGBzvUTIAEXpX8IIoxOFwsgE','3922360932-HMZZneyV9DHaNbHYPHFczCxeHvvDpISPxeG1RpA','YqUgwlBrOwfWucfGC1JjRMa0e5fTwxwSlRCha7gjmFI2k'])
 
+# api_csv = pd.read_csv(r"Interest/apikeys.csv")
+# accesstokenlist=[]
+# for row in api_csv.iterrows():
+#     index, data = row
+#     accesstokenlist.append(data.tolist())
+
 def extractTweets(user,numOfTweets=500):
     ##Extract tweets from user (cycles api)
     currKeyIndex = 0
@@ -118,6 +124,7 @@ def predictUser(user,numTweets=500):
     age = predictionAge.get(predicted_age_key)
 
     # gender
+    # TO-DO: process input data for gender_model
     gender_results = gender_model.predict(data)
     gender_results = np.argmax(gender_results, axis=1)
     predicted_gender_count = Counter(gender_results)
