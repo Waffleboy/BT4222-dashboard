@@ -43,7 +43,7 @@ def autoreply_given_tweet(tweet):
 	if result:
 		res["success"] = "true"
 		res["result_debug"] = result._json
-		tweet.resolve()
+		tweet.resolve_tweet()
 	return res
 
 
