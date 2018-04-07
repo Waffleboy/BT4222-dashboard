@@ -145,7 +145,7 @@ def resolve_api_post(request):
 		if not tweet:
 			logger.warn("Invalid tweet ID for {}".format(tweet_id))
 			return HttpResponse("Invalid tweet ID")
-		tweet.resolve()
+		tweet.resolve_tweet()
 		response = {'Resolved':True,
 					'tweet_id':'{}'.format(tweet_id)}
 		return HttpResponse(json.dumps(response))
