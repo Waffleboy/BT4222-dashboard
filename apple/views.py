@@ -106,9 +106,7 @@ def profile(request):
 
 			tweet_id = request.POST['tweet_id']
 			tweet = Tweet.objects.get(tweet_id = tweet_id)
-
-			context['tweet_id'] = tweet.tweet_id
-			context['tweet'] = tweet.text
+			tweet.resolve_tweet()
 
 			if form.is_valid():
 				reply = form.cleaned_data['reply']
@@ -116,11 +114,8 @@ def profile(request):
 
 				form = replyForm()
 
-			context['form'] = form
-
-		else:
-			context['tweets'] = get_user_tweets(user)
-			context['redirected'] = 1
+		context['tweets'] = get_user_tweets(user)
+		context['redirected'] = 1
 
 	#To hide errors from multiple get requests when loading new page
 	try:
