@@ -16,6 +16,7 @@ from apple import views_helper
 from apple.forms import replyForm
 from apple.tweet_reply import update_stat
 from apple.customer_helper import get_user_info, get_user_tweets
+from apple.service_modules.autoreply_module import autoreply,autoreply_all
 
 import logging
 logger = logging.getLogger(__name__)
@@ -32,8 +33,8 @@ def index(request):
 	negative_tweets = tweets.filter(sentiment='negative')
 
 	context['total_users'] = TwitterUser.objects.count()
-	context['positive_tweets'] = views_helper.format_tweets_to_table(positive_tweets)
-	context['negative_tweets'] = views_helper.format_tweets_to_table(negative_tweets)
+	context['positive_tweets'] = views_helper.format_pos_tweets_to_table(positive_tweets)
+	context['negative_tweets'] = views_helper.format_neg_tweets_to_table(negative_tweets)
 
 	return render(request, 'dashboard.html', context)
 
@@ -148,3 +149,15 @@ def stream_api_post(request):
 
 	else: #GET
 		return HttpResponse("Invalid operands")
+
+@csrf_exempt
+def autoreply_api(request):
+	if request.method == 'POST':
+		tweet_id = request.POST['tweet_id']
+		autoreply_all = request.POST["all"]
+		if tweet_id:
+			response = autoreply(tweet_id)
+		elif autoreply_all:
+			response = autoreply_all()
+		
+	return HttpResponse(json.dumps(response))

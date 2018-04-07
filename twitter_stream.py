@@ -30,11 +30,9 @@ class StdOutListener(StreamListener):
 
     def on_data(self, data):
         global API_URL
-        logger.info("New incoming tweet!")
         data_json = json.loads(data)
         data_json["AUTH_KEY"] = os.environ["DJANGO_POST_KEY"]
         res = requests.post(API_URL,json=data_json)
-        
         return True
 
     def on_error(self, status):

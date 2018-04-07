@@ -15,5 +15,4 @@ api = API(auth)
 
 def update_stat(screenname, reply, tweet_id):
 	global api
-
-	api.update_status('@' + screenname + ' ' + reply, in_reply_to_status_id = tweet_id)
+	return api.update_status('@' + screenname + ' ' + reply, in_reply_to_status_id = tweet_id)
