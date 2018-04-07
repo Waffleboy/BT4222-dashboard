@@ -19,7 +19,10 @@ import pyLDAvis.gensim as gensimvis
 import pyLDAvis
 
 
+words_to_remove = set(['rt','apple','apple_support','applesupport'])
 stop = set(stopwords.words('english'))
+stop = stop.union(words_to_remove)
+
 exclude = set(string.punctuation)
 lemma = WordNetLemmatizer()
 

@@ -14,7 +14,10 @@ from wordcloud import WordCloud
 import re
 from nltk.corpus import stopwords
 
+words_to_remove = set(['rt','apple','apple_support','applesupport'])
 stop = set(stopwords.words('english'))
+stop = stop.union(words_to_remove)
+
 date_timelines = [1,7,30] #days
 explained = ['daily','weekly','monthly']
 dates = [datetime.date.today() - datetime.timedelta(days=x) for x in date_timelines]
@@ -41,7 +44,7 @@ def run():
 
 
 def preprocess_text(text_list):
-    words_to_remove = ['rt']
+    global words_to_remove
     text_list = [x.lower() for x in text_list]
     # strip urls
     text_list = [re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', x, flags=re.MULTILINE) for x in text_list]
