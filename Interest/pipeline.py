@@ -28,16 +28,15 @@ def extractTweets(user,numOfTweets=500):
     currKeyIndex = 0
     currKeyList = accesstokenlist[currKeyIndex]
     totalKeys = len(accesstokenlist) #Number of twitter keys
-
+    
     def set_auth(currKeyList):
         auth = tweepy.auth.OAuthHandler(currKeyList[0], currKeyList[1])
         auth.set_access_token(currKeyList[2], currKeyList[3])
         api = tweepy.API(auth)
         return api
 
-    api = set_auth(currKeyList)
-    rateID = 0
-
+    api = set_auth(currKeyList)  
+    
     def cycleKey():
         nonlocal currKeyIndex
         nonlocal currKeyList
@@ -47,31 +46,23 @@ def extractTweets(user,numOfTweets=500):
         currKeyList = accesstokenlist[currKeyIndex]
         api = set_auth(currKeyList)
 
-    def updateAPIRate():
-        nonlocal rateID
-        x = api.rate_limit_status()
-        rateID = x['resources']['statuses']['/statuses/user_timeline']['remaining']
-        print(rateID)
-
-    def checkRateID():
-        nonlocal rateID
-        if rateID <= 5:
-            cycleKey()
-            updateAPIRate()
-
+            
     listOfTweets = []
     counter = numOfTweets // 200 #200 per request
-    print('Extracting tweets from: ' + user)
+    print('Extracting tweets from: ' + user) 
     batch = api.user_timeline(screen_name = user,count=200)
     listOfTweets.extend(batch)
     listLen = listOfTweets[-1].id - 1
     while len(batch) > 0 and counter > 1:
-        batch = api.user_timeline(screen_name = user,count=200,max_id=listLen)
-        listOfTweets.extend(batch)
-        listLen = listOfTweets[-1].id - 1
-        counter -= 1
-        updateAPIRate()
-        checkRateID()
+        try:
+            batch = api.user_timeline(screen_name = user,count=200,max_id=listLen)
+            listOfTweets.extend(batch)
+            listLen = listOfTweets[-1].id - 1
+            counter -= 1
+        except tweepy.TweepError:
+            cycleKey()
+            continue
+        
     listOfTweets = [tweet.text for tweet in listOfTweets]
     return listOfTweets
 
