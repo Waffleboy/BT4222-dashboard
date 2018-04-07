@@ -91,6 +91,7 @@ class Tweet(models.Model):
 	priority = models.CharField(max_length=250,default=None, blank=True, null=True)
 	sentiment = models.CharField(max_length=250,default=None, blank=True, null=True)
 	resolved = models.BooleanField(default=False)
+	resolved_time = models.DateTimeField(default=None, blank=True, null=True)
 
 	raw_response = JSONField(default=dict)
 	properties = JSONField(default=dict)
@@ -130,3 +131,7 @@ class Tweet(models.Model):
 		new_tweet.save()
 		return new_tweet
 
+	def resolve_tweet(self):
+		self.resolved = True
+		self.resolved_time = datetime.datetime.now() 
+		return self.save()

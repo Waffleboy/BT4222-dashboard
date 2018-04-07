@@ -5,6 +5,7 @@ import sys
 import json
 import os
 from threading import Thread
+import datetime
 
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -31,8 +32,32 @@ def index(request):
 	tweets = Tweet.objects.all()
 	positive_tweets = tweets.filter(sentiment='positive')
 	negative_tweets = tweets.filter(sentiment='negative')
+	yesterday = datetime.datetime.today() - datetime.timedelta(days=1)
+	hour_ago = datetime.datetime.today() - datetime.timedelta(minutes=60)
 
-	context['total_users'] = TwitterUser.objects.count()
+	context['open_positive_tweets_count'] = positive_tweets.filter(resolved=False).count()
+	context['open_negative_tweets_count'] = negative_tweets.filter(resolved=False).count()
+
+	twenty_four_hour_negative_tweets = negative_tweets.filter(created_at__gte = yesterday)
+	high_priority_negative_tweets = twenty_four_hour_negative_tweets.filter(priority='High')
+
+	twenty_four_hour_negative_tweets_count = twenty_four_hour_negative_tweets.count()
+	high_priority_negative_tweets_count = high_priority_negative_tweets.count()
+
+	context["negative_tweet_24hr_count"] = twenty_four_hour_negative_tweets_count
+	context["negative_high_priority_count_24hr_count"] =  high_priority_negative_tweets_count
+
+	if high_priority_negative_tweets_count != 0:
+		negative_high_priority_percentage = round(twenty_four_hour_negative_tweets_count / high_priority_negative_tweets_count,2) * 100
+	else:
+		negative_high_priority_percentage = 0
+
+	context["negative_high_priority_percentage"] = negative_high_priority_percentage
+
+	hourly = negative_tweets.filter(created_at__gte = hour_ago)
+	context["tweet_velocity"] = hourly.count()
+	context["resolve_velocity"] = sum([1 for x in hourly if x.resolved_time])
+
 	context['positive_tweets'] = views_helper.format_pos_tweets_to_table(positive_tweets)
 	context['negative_tweets'] = views_helper.format_neg_tweets_to_table(negative_tweets)
 
@@ -120,8 +145,7 @@ def resolve_api_post(request):
 		if not tweet:
 			logger.warn("Invalid tweet ID for {}".format(tweet_id))
 			return HttpResponse("Invalid tweet ID")
-		tweet.resolved = True 
-		tweet.save()
+		tweet.resolve()
 		response = {'Resolved':True,
 					'tweet_id':'{}'.format(tweet_id)}
 		return HttpResponse(json.dumps(response))
