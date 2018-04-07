@@ -81,7 +81,7 @@ class Tweet(models.Model):
 	user = models.ForeignKey(TwitterUser)
 
 	tweet_id = models.BigIntegerField(db_index=True) # Index to make searches quicker
-	text = models.TextField(max_length=250,default=None, blank=True, null=True)
+	text = models.TextField(max_length=300,default=None, blank=True, null=True)
 	place = models.TextField(max_length=250,default=None, blank=True, null=True)
 	latitude = models.DecimalField(max_digits=9, decimal_places=6,default=None, blank=True, null=True)
 	longitude = models.DecimalField(max_digits=9, decimal_places=6,default=None, blank=True, null=True)
