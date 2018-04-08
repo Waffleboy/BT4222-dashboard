@@ -1,34 +1,35 @@
-# import remaining libraries
-from keras.models import Sequential
-from keras.layers import Dense, Flatten, LSTM, Conv1D, MaxPooling1D, Dropout, Activation
-from keras.layers.embeddings import Embedding
-from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
-from sklearn.model_selection import train_test_split
-from sklearn.manifold import TSNE
-from collections import Counter
-import nltk
-from nltk.corpus import stopwords
-import string
-import pickle
-from _pickle import dump, load
-import numpy as np
+# import libraries
+import csv,re,random,tweepy,datetime
 import pandas as pd
+import numpy as np
+import os
+import pickle
+from keras.models import Sequential, load_model
+from keras.layers import Dense, Activation, Embedding, Flatten, Dropout, TimeDistributed, Reshape, Lambda
+from keras.layers import LSTM
+from keras.optimizers import RMSprop, Adam, SGD
+from keras import backend as K
+from keras.utils import to_categorical
+from keras.callbacks import ModelCheckpoint
+from keras.preprocessing.text import Tokenizer
+from keras.layers.embeddings import Embedding
+from keras.preprocessing import sequence
+from keras.preprocessing.text import one_hot
+from keras.preprocessing.text import text_to_word_sequence
+from collections import Counter
+import tensorflow as tf
+from _pickle import dump, load
+from nltk.corpus import stopwords
 
-# will change this to apiKeys.csv
+# api keys
+api_csv = pd.read_csv(r"Interest/apikeys.csv")
 accesstokenlist=[]
-accesstokenlist.append(['k9mZYw5Ob4F8xP7nBAD9qruWt','cISrskHBeEDCbZvPfPq7kgKD2y3f7fjCKZx0qeR5BNhdJfDpbV','2751072230-oI7GT4b5cHxiy0ztZi2UpHGFi3TB14O6Kxr0nIz','K7WckeuIRk3oRkDNOviSncYGBHChEZZPSDS8HcbtWcvyz'])
-accesstokenlist.append(['Ylj8Iadlj9G6gP5NSlg1zd6jh','lpT0ayT2iRicrNmpIkUJVWXJWKgpw6xGD0oyPOd6WuoDdjLOnb','2751072230-3n2XQy7jWuATxWW8fUeQHmjPueSWJmqQMEJRO80','Ac05rHR7kvDalWzDPQG9qLe8GWD33SGVEyDJ6QuyzsuY8'])
-accesstokenlist.append(['Ylj8Iadlj9G6gP5NSlg1zd6jh','lpT0ayT2iRicrNmpIkUJVWXJWKgpw6xGD0oyPOd6WuoDdjLOnb','2751072230-3n2XQy7jWuATxWW8fUeQHmjPueSWJmqQMEJRO80','Ac05rHR7kvDalWzDPQG9qLe8GWD33SGVEyDJ6QuyzsuY8'])
-accesstokenlist.append(['n95HW5GEBFgvabqEAJHpfUotd','CsKcATAR6RDrjNQRfvtANAIUph0QwfiGv6pWtndOAJVRuHj1Rw','3922360932-NZsAqG12uu3f7xobVXF1VR0JQPpFoRvLjrK8OsL','atfRNC90EnJmEWeW9BkIlSkb67VjXwfK69x7hKceBUSH2'])
-accesstokenlist.append(['7VzkryGJd0z8ClcWKoeImN4cb','fv0hmCRkSl8rgcnyduVM2t79A7dGBzvUTIAEXpX8IIoxOFwsgE','3922360932-HMZZneyV9DHaNbHYPHFczCxeHvvDpISPxeG1RpA','YqUgwlBrOwfWucfGC1JjRMa0e5fTwxwSlRCha7gjmFI2k'])
+for row in api_csv.iterrows():
+    index, data = row
+    accesstokenlist.append(data.tolist())
 
-# api_csv = pd.read_csv(r"Interest/apikeys.csv")
-# accesstokenlist=[]
-# for row in api_csv.iterrows():
-#     index, data = row
-#     accesstokenlist.append(data.tolist())
-
+# pre-defined functions
+# extract tweets from a given screen name
 def extractTweets(user,numOfTweets=500):
     ##Extract tweets from user (cycles api)
     currKeyIndex = 0
@@ -81,21 +82,100 @@ def extractTweets(user,numOfTweets=500):
     listOfTweets = [tweet.text for tweet in listOfTweets]
     return listOfTweets
 
+# only for interest model
+def processTweets(lst):
+    for i in range(len(lst)):
+        text = lst[i]
+        text = text.lower()
+        text = re.sub('RT @[\w_]+',"",text)
+        text = re.sub('@[\w_]+','',text)
+        text = re.sub(r"http\S+", "", text)
+        lst[i] = text
+    return lst
 
+# for ensembling ML models
+class ensemble_ML():
+    def __init__(self, list_of_models, vect, num_class):
+        self.models = list_of_models
+        self.vect = vect
+        self.num_class = num_class
+
+    def preprocess_x(self, tweet):
+        tweets = pd.Series(tweet)
+
+        #convert tweets to lower case
+        tweets = tweets.apply(str.lower)
+        #replaces any urls with URL
+        tweets = tweets.str.replace(r'((www\.[\S]+)|(https?://[\S]+))', ' URL ')
+        #removes user mentions
+        tweets = tweets.str.replace(r"@\S+", " MENTIONS ")
+        #removes hashtags
+        tweets = tweets.str.replace(r"#\S+", " HASHTAGS ")
+        #removes rt
+        tweets = tweets.str.replace(r'\brt\b', ' RETWEETS ')
+        #removes multiple white spaces
+        tweets = tweets.str.replace(r'\s+', " ")
+        #strips both ends of white space
+        tweets = tweets.apply(str.strip)
+
+        #loading stopwords
+        stop = stopwords.words('english')
+
+        #removing stopwords
+        tweets = tweets.str.split()
+        tweets = tweets.apply(lambda x: [item for item in x if item not in stop])
+        tweets = tweets.str.join(" ")
+
+        return tweets
+
+    def tokenize_x(self, tweet):
+        tweet = vect.transform(tweet)
+
+        return tweet
+
+    # for age prediction
+    def format_to_age_label(self, list_of_labels):
+        age_mapper = pd.Series(['Middle', 'Old', 'Teenager', 'Young Adult'])
+        return age_mapper[list_of_labels]
+
+    def predict_age(self, tweet):
+        tweet = self.preprocess_x(tweet)
+        tweet = self.tokenize_x(tweet)
+
+        ypred = np.zeros((tweet.shape[0], self.num_class))
+
+        for model in self.models:
+            ypred = ypred + model.predict_proba(tweet)
+
+        ypred = np.argmax(ypred, axis = -1)
+        return self.format_to_age_label(ypred)
+
+    # for gender prediction
+    def format_to_gender_label(self, list_of_labels):
+        gender_mapper = pd.Series(['Female', 'Male'])
+
+        return gender_mapper[list_of_labels]
+
+    def predict_gender(self, tweet):
+        tweet = self.preprocess_x(tweet)
+        tweet = self.tokenize_x(tweet)
+
+        ypred = np.zeros((tweet.shape[0], self.num_class))
+
+        for model in self.models:
+            ypred = ypred + model.predict_proba(tweet)
+
+        ypred = np.argmax(ypred, axis = -1)
+        return self.format_to_gender_label(ypred)
+
+
+# get predictions based on screen name
 global interest_maxTweetLength
 interest_maxTweetLength = 141
-global age_maxTweetLength
-age_maxTweetLength = 30
-# TO-DO create gender_maxTweetLength
-
 
 # to decode prediction results
 global predictionDic
-global predictionAge
-global predictionGender
 predictionDic = {0:'Food',1:'Music',2:'News',3:'Politics',4:'Soccer',5:'Tech',6:'Fashion',7:'Gaming',8:'Pets',9:'Reading',10:'Running',11:'Travel',12:'Travel'}
-predictionAge = {0:"Young", 1:"Middle Aged", 2:"Elderly"}
-predictionGender = {0:"Female", 1:"Male"}
 
 # input: user screen name
 # output: [interest, age, gender]
@@ -103,10 +183,10 @@ def predictUser(user,numTweets=500):
 
     # list of tweets
     userTweets = extractTweets(user,numTweets) # input number of tweets to pull as desired (>= 200)
-    userTweets = processTweets(userTweets)
 
     # interest
-    interest_data = interest_tokenizer.texts_to_sequences(userTweets)
+    interest_data = processTweets(userTweets)
+    interest_data = interest_tokenizer.texts_to_sequences(interest_data)
     interest_data = sequence.pad_sequences(interest_data, maxlen = interest_maxTweetLength, padding = 'post')
     results = interest_model.predict(interest_data)
     results = np.argmax(results,axis=1)
@@ -115,27 +195,26 @@ def predictUser(user,numTweets=500):
     interest = predictionDic.get(interest_key)
 
     # age
-    age_data = age_tokenizer.texts_to_sequences(userTweets)
-    age_data = sequence.pad_sequences(age_data, maxlen = age_maxTweetLength, padding = 'post')
-    age_results = age_model.predict(age_data)
-    age_results = np.argmax(age_results, axis=1)
-    predicted_age_count = Counter(age_results)
+    age_model = ensemble_ML(list_of_models = [age_lr, age_xgb, age_nb], \
+                             vect = vect, num_class = 4)
+    age_results = age_model.predict_age(userTweets)
+    predicted_age_count = Counter(age_results.index)
     predicted_age_key = predicted_age_count.most_common(1)[0][0]
-    age = predictionAge.get(predicted_age_key)
+    age = age_results[predicted_age_key].iloc[0]
 
     # gender
-    # TO-DO: process input data for gender_model
-    gender_results = gender_model.predict(data)
-    gender_results = np.argmax(gender_results, axis=1)
-    predicted_gender_count = Counter(gender_results)
+    gender_model = ensemble_ML(list_of_models = [gender_lr, gender_xgb, gender_nb], \
+                             vect = vect, num_class = 2)
+    gender_results = gender_model.predict_gender(userTweets)
+    predicted_gender_count = Counter(gender_results.index)
     predicted_gender_key = predicted_gender_count.most_common(1)[0][0]
-    age = predictionGender.get(predicted_gender_key)
+    gender = gender_results[predicted_gender_key].iloc[0]
 
     return [interest, age, gender]
 
-# load models
+
+# functions to load models
 # load interest model
-# from dion's predict_user.py
 def load_cnn_interest():
     global interest_tokenizer
     global interest_embeddings_matrix
@@ -151,13 +230,27 @@ def load_cnn_interest():
     print("loaded interest model")
 
 # load age model
-def load_cnn_age():
-    global age_tokenizer
-    global age_embeddings_matrix
-    global age_model
+def load_ML_age():
+    global vect  # same vectorizer for gender
+    global age_lr
+    global age_xgb
+    global age_nb
 
     # pkl files for age model
-    age_tokenizer = load(open('tokenizer30age.pkl', 'rb'))
-    age_embeddings_matrix = load(open('embeddings30age.pkl', 'rb'))
-    age_model = load_model('bestmodelage.h5')
+    vect = load(open('vectorizer.pkl', 'rb'))
+    age_lr = load(open('age_lr.pkl', 'rb'))
+    age_xgb = load(open('age_xgb.pkl', 'rb'))
+    age_nb = load(open('age_nb.pkl', 'rb'))
     print("loaded age model")
+
+# load age model
+def load_ML_gender():
+    global gender_lr
+    global gender_xgb
+    global gender_nb
+
+    # pkl files for gender model
+    gender_lr = load(open('gender_lr.pkl', 'rb'))
+    gender_xgb = load(open('gender_xgb.pkl', 'rb'))
+    gender_nb = load(open('gender_nb.pkl', 'rb'))
+    print("loaded gender model")
