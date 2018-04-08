@@ -20,6 +20,8 @@ from collections import Counter
 import tensorflow as tf
 from _pickle import dump, load
 from nltk.corpus import stopwords
+import requests
+import time
 
 import tensorflow as tf
 # api keys
@@ -30,21 +32,21 @@ for row in api_csv.iterrows():
     accesstokenlist.append(data.tolist())
 
 # pre-defined functions
+def set_auth(currKeyList):
+    auth = tweepy.auth.OAuthHandler(currKeyList[0], currKeyList[1])
+    auth.set_access_token(currKeyList[2], currKeyList[3])
+    api = tweepy.API(auth)
+    return api
+
 # extract tweets from a given screen name
 def extractTweets(user,numOfTweets=500):
     ##Extract tweets from user (cycles api)
     currKeyIndex = 0
     currKeyList = accesstokenlist[currKeyIndex]
     totalKeys = len(accesstokenlist) #Number of twitter keys
-    
-    def set_auth(currKeyList):
-        auth = tweepy.auth.OAuthHandler(currKeyList[0], currKeyList[1])
-        auth.set_access_token(currKeyList[2], currKeyList[3])
-        api = tweepy.API(auth)
-        return api
 
-    api = set_auth(currKeyList)  
-    
+    api = set_auth(currKeyList)
+
     def cycleKey():
         nonlocal currKeyIndex
         nonlocal currKeyList
@@ -54,10 +56,9 @@ def extractTweets(user,numOfTweets=500):
         currKeyList = accesstokenlist[currKeyIndex]
         api = set_auth(currKeyList)
 
-            
     listOfTweets = []
     counter = numOfTweets // 200 #200 per request
-    print('Extracting tweets from: ' + user) 
+    print('Extracting tweets from: ' + user)
     batch = api.user_timeline(screen_name = user,count=200)
     listOfTweets.extend(batch)
     listLen = listOfTweets[-1].id - 1
@@ -70,7 +71,7 @@ def extractTweets(user,numOfTweets=500):
         except tweepy.TweepError:
             cycleKey()
             continue
-        
+
     listOfTweets = [tweet.text for tweet in listOfTweets]
     return listOfTweets
 
@@ -84,6 +85,64 @@ def processTweets(lst):
         text = re.sub(r"http\S+", "", text)
         lst[i] = text
     return lst
+
+def has_default_photo(user):
+    currKeyIndex = 0
+    currKeyList = accesstokenlist[currKeyIndex]
+    totalKeys = len(accesstokenlist)
+    api = set_auth(currKeyList)
+    res = api.lookup_users(screen_names=[user])
+    default_photo = res[0].default_profile_image
+    return default_photo
+
+# Face API
+# gets face API response
+face_api = pd.read_csv(r"Interest/faceAPI.csv")
+keys = list(face_api.key)
+keyNum = 0
+
+def call_face_api(key, face_api_url, url):
+    headers = { 'Ocp-Apim-Subscription-Key': key}
+    params = {
+        'returnFaceId': 'true',
+        'returnFaceLandmarks': 'false',
+        'returnFaceAttributes': 'age,gender',
+    }
+    response = requests.post(face_api_url, params=params, headers=headers, json={"url": url})
+    return response
+
+def get_api_response(user):
+    face_api_url = 'https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect'
+    url = 'https://avatars.io/twitter/' + user
+
+    def keyNumShuffle(response):
+        if response.status_code == 403: # max calls for key
+            global keyNum
+            keyNum += 1
+        return keyNum
+
+    try:
+        response = call_face_api(keys[keyNum], face_api_url, url)
+        if response.status_code == 429: # too many query for 26s
+            time.sleep(20)
+            response = call_face_api(key[keyNum], face_api_url, url)
+
+        key = keyNumShuffle(response)
+        response = response.json() # convert response obj to json
+
+    except Exception as e:
+        print(e)
+        response = []
+
+    return response
+
+# takes in response object from face api
+def get_face_data(response):
+    face_info = response[0]
+    json_res = face_info["faceAttributes"]
+    age = json_res["age"]
+    gender = json_res["gender"]
+    return [age, gender]
 
 # for ensembling ML models
 class ensemble_ML():
@@ -160,52 +219,86 @@ class ensemble_ML():
         ypred = np.argmax(ypred, axis = -1)
         return self.format_to_gender_label(ypred)
 
-
-# get predictions based on screen name
-global interest_maxTweetLength
-interest_maxTweetLength = 141
-
 # to decode prediction results
 global predictionDic
 predictionDic = {0:'Food',1:'Music',2:'News',3:'Politics',4:'Soccer',5:'Tech',6:'Fashion',7:'Gaming',8:'Pets',9:'Reading',10:'Running',11:'Travel',12:'Travel'}
 
-# input: user screen name
-# output: [interest, age, gender]
-def predictUser(user,numTweets=500):
-
-    # list of tweets
-    userTweets = extractTweets(user,numTweets) # input number of tweets to pull as desired (>= 200)
-
-    # interest
-    interest_data = processTweets(userTweets)
+# helper functions for prediction
+def predict_interest(tweets):
+    interest_maxTweetLength = 141
+    predictionDic = {0:'Food',1:'Music',2:'News',3:'Politics',4:'Soccer',5:'Tech',6:'Fashion',7:'Gaming',8:'Pets',9:'Reading',10:'Running',11:'Travel',12:'Travel'}
+    interest_data = processTweets(tweets)
     interest_data = interest_tokenizer.texts_to_sequences(interest_data)
     interest_data = sequence.pad_sequences(interest_data, maxlen = interest_maxTweetLength, padding = 'post')
-    
-    with graph.as_default():
-        results = interest_model.predict(interest_data)
+    results = interest_model.predict(interest_data)
     results = np.argmax(results,axis=1)
     interest_key = Counter(results)
     interest_key = interest_key.most_common(1)[0][0]
     interest = predictionDic.get(interest_key)
+    return interest
 
-    # age
+def predict_age(tweets):
     age_model = ensemble_ML(list_of_models = [age_lr, age_xgb, age_nb], \
                              vect = vect, num_class = 4)
-    age_results = age_model.predict_age(userTweets)
+    age_results = age_model.predict_age(tweets)
     predicted_age_count = Counter(age_results.index)
     predicted_age_key = predicted_age_count.most_common(1)[0][0]
     age = age_results[predicted_age_key].iloc[0]
+    return age
 
-    # gender
+def predict_gender(tweets):
     gender_model = ensemble_ML(list_of_models = [gender_lr, gender_xgb, gender_nb], \
                              vect = vect, num_class = 2)
-    gender_results = gender_model.predict_gender(userTweets)
+    gender_results = gender_model.predict_gender(tweets)
     predicted_gender_count = Counter(gender_results.index)
     predicted_gender_key = predicted_gender_count.most_common(1)[0][0]
     gender = gender_results[predicted_gender_key].iloc[0]
+    return gender
+
+def stratify_age(age):
+    if age <= 21:
+        stratified = 'Teenager'
+    elif age <= 30:
+        stratified = 'Young Adult'
+    elif age <= 50:
+        stratified = 'Middle'
+    else:
+        stratified = 'Old'
+    return stratified
+
+# input: user screen name
+# output: [interest, age, gender]
+global interest_maxTweetLength
+interest_maxTweetLength = 141
+
+def predictUser(user,numTweets=500):
+    # list of tweets
+    userTweets = extractTweets(user,numTweets) # input number of tweets to pull as desired (>= 200)
+    interest = predict_interest(userTweets)
+
+    # predict age and gender by tweets
+    if has_default_photo(user)==True:
+        print("Default profile picture")
+        age = predict_age(userTweets)
+        gender = predict_gender(userTweets)
+
+    # get age and gender from face api
+    else:
+        face_api_res = get_api_response(user)
+        if len(face_api_res) == 1:
+            print("1 face detected")
+            face_data = get_face_data(face_api_res)
+            age = face_data[0]
+            age = stratify_age(age)
+            gender = face_data[1].title()
+        else:
+            # 0 or multiple faces
+            # predict age and gender by tweets
+            print("0 or mutiple face detected")
+            age = predict_age(userTweets)
+            gender = predict_gender(userTweets)
 
     return [interest, age, gender]
-
 
 # functions to load models
 # load interest model
