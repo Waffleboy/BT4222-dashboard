@@ -97,7 +97,7 @@ def has_default_photo(user):
 
 # Face API
 # gets face API response
-face_api = pd.read_csv(r"Interest/faceAPI.csv")
+face_api = pd.read_csv(r"./Interest/faceAPI.csv")
 keys = list(face_api.key)
 keyNum = 0
 
@@ -230,7 +230,8 @@ def predict_interest(tweets):
     interest_data = processTweets(tweets)
     interest_data = interest_tokenizer.texts_to_sequences(interest_data)
     interest_data = sequence.pad_sequences(interest_data, maxlen = interest_maxTweetLength, padding = 'post')
-    results = interest_model.predict(interest_data)
+    with graph.as_default():
+        results = interest_model.predict(interest_data)
     results = np.argmax(results,axis=1)
     interest_key = Counter(results)
     interest_key = interest_key.most_common(1)[0][0]

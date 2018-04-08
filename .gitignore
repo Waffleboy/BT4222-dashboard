@@ -94,5 +94,5 @@ scripts/*.pkl
 interest/apikeys.csv
 Interest/apikeys.csv
 
-
+Interest/faceAPI.csv
 .DS_Store
