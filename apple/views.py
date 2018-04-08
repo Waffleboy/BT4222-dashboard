@@ -32,6 +32,7 @@ def index(request):
 	tweets = Tweet.objects.all()
 	positive_tweets = tweets.filter(sentiment='positive')
 	negative_tweets = tweets.filter(sentiment='negative')
+	irrelevant_tweets = tweets.filter(sentiment='irrelevant')
 	yesterday = datetime.datetime.today() - datetime.timedelta(days=1)
 	hour_ago = datetime.datetime.today() - datetime.timedelta(minutes=60)
 
@@ -58,6 +59,7 @@ def index(request):
 	context["tweet_velocity"] = hourly.count()
 	context["resolve_velocity"] = sum([1 for x in hourly if x.resolved_time])
 
+	context['irrelevant_tweets'] = views_helper.format_other_tweets_to_table(irrelevant_tweets)
 	context['positive_tweets'] = views_helper.format_pos_tweets_to_table(positive_tweets)
 	context['negative_tweets'] = views_helper.format_neg_tweets_to_table(negative_tweets)
 
@@ -126,8 +128,8 @@ def profile(request):
 		context['interest'] = user.interest
 		
 		
-		#context['age'] = user.age
-		#context['gender'] = user.gender
+		context['age'] = user.age
+		context['gender'] = user.gender
 	except:
 		pass
 	return render(request, 'profile.html', context)

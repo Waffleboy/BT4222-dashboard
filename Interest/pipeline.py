@@ -21,6 +21,7 @@ import tensorflow as tf
 from _pickle import dump, load
 from nltk.corpus import stopwords
 
+import tensorflow as tf
 # api keys
 api_csv = pd.read_csv(r"Interest/apikeys.csv")
 accesstokenlist=[]
@@ -179,7 +180,9 @@ def predictUser(user,numTweets=500):
     interest_data = processTweets(userTweets)
     interest_data = interest_tokenizer.texts_to_sequences(interest_data)
     interest_data = sequence.pad_sequences(interest_data, maxlen = interest_maxTweetLength, padding = 'post')
-    results = interest_model.predict(interest_data)
+    
+    with graph.as_default():
+        results = interest_model.predict(interest_data)
     results = np.argmax(results,axis=1)
     interest_key = Counter(results)
     interest_key = interest_key.most_common(1)[0][0]
@@ -212,12 +215,13 @@ def load_cnn_interest():
     global interest_model
 
     # .pickle files for interest model
-    with open('tokenizer30.pickle', 'rb') as handle:
+    with open('./Interest/tokenizer30.pickle', 'rb') as handle:
         interest_tokenizer = pickle.load(handle)
     interest_tokenizer.oov_token = None
-    with open('embeddings30.pickle', 'rb') as handle:
+    with open('./Interest/embeddings30.pickle', 'rb') as handle:
         interest_embeddings_matrix = pickle.load(handle)
-    interest_model = load_model('bestmodel.h5')
+    interest_model = load_model('./Interest/bestmodel.h5')
+    interest_model._make_predict_function()
     print("loaded interest model")
 
 # load age model
@@ -228,10 +232,10 @@ def load_ML_age():
     global age_nb
 
     # pkl files for age model
-    vect = load(open('vectorizer.pkl', 'rb'))
-    age_lr = load(open('age_lr.pkl', 'rb'))
-    age_xgb = load(open('age_xgb.pkl', 'rb'))
-    age_nb = load(open('age_nb.pkl', 'rb'))
+    vect = load(open('./Interest/vectorizer.pkl', 'rb'))
+    age_lr = load(open('./Interest/age_lr.pkl', 'rb'))
+    age_xgb = load(open('./Interest/age_xgb.pkl', 'rb'))
+    age_nb = load(open('./Interest/age_nb.pkl', 'rb'))
     print("loaded age model")
 
 # load age model
@@ -241,7 +245,13 @@ def load_ML_gender():
     global gender_nb
 
     # pkl files for gender model
-    gender_lr = load(open('gender_lr.pkl', 'rb'))
-    gender_xgb = load(open('gender_xgb.pkl', 'rb'))
-    gender_nb = load(open('gender_nb.pkl', 'rb'))
+    gender_lr = load(open('./Interest/gender_lr.pkl', 'rb'))
+    gender_xgb = load(open('./Interest/gender_xgb.pkl', 'rb'))
+    gender_nb = load(open('./Interest/gender_nb.pkl', 'rb'))
     print("loaded gender model")
+
+load_cnn_interest()
+load_ML_age()
+load_ML_gender()
+global graph
+graph = tf.get_default_graph()
