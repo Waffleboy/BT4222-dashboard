@@ -16,6 +16,7 @@ from Ensemble import ensemble
 from relevant_pipeline import ensembleML
 from apple.service_modules import priority_module
 from pipeline import predictUser
+from django.utils import timezone
 
 import logging
 logger = logging.getLogger(__name__)
@@ -146,5 +147,5 @@ class Tweet(models.Model):
 
 	def resolve_tweet(self):
 		self.resolved = True
-		self.resolved_time = datetime.datetime.now() 
+		self.resolved_time = timezone.now() 
 		return self.save()
