@@ -13,8 +13,9 @@ import pandas as pd
 import datetime
 from collections import Counter,defaultdict
 from Ensemble import ensemble
+from relevant_pipeline import ensembleML
 from apple.service_modules import priority_module
-from predict_user import predictUser
+from pipeline import predictUser
 
 import logging
 logger = logging.getLogger(__name__)
@@ -52,7 +53,11 @@ class TwitterUser(models.Model):
 		if len(query) > 0:
 			return query.first()
 
-		interest = predictUser(user_response_dict['screen_name'])
+		predictions = predictUser(user_response_dict['screen_name'])
+		interest = predictions[0]
+		age = predictions[1]
+		gender = predictions[2]
+
 		#TODO: Abstract out to a info extractor class
 		user_info = {'twitter_id': user_response_dict['id'],
 					  'screen_name':user_response_dict['screen_name'],
@@ -65,7 +70,9 @@ class TwitterUser(models.Model):
 					 'friends_count':user_response_dict['friends_count'],
 					 'url':user_response_dict['url'],
 					 'raw_response':user_response_dict,
-					 'interest': interest
+					 'interest': interest,
+					 'age': age,
+					 'gender': gender
 					 }
 
 		new_user = TwitterUser(**user_info)
@@ -105,7 +112,13 @@ class Tweet(models.Model):
 		if len(query) > 0:
 			return query.first()
 
-		senti = ensemble.predict(tweet_dict['text'])[0]
+		relevance = ensembleML.predict_x(tweet_dict['text']).iloc[0,]
+
+		if relevance == 'relevant':
+			senti = ensemble.predict(tweet_dict['text'])[0]
+		else:
+			senti = 'irrelevant'
+
 		#TODO: Abstract out to a info extractor class
 		tweet_info = {'tweet_id':tweet_dict['id'],
 						'text':tweet_dict['text'],
