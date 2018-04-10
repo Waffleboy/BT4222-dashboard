@@ -221,12 +221,10 @@ class ensemble_ML():
 
 # to decode prediction results
 global predictionDic
-predictionDic = {0:'Food',1:'Music',2:'News',3:'Politics',4:'Soccer',5:'Tech',6:'Fashion',7:'Gaming',8:'Pets',9:'Reading',10:'Running',11:'Travel',12:'Travel'}
-
+predictionDic = {0:'Food',1:'Music',2:'News',3:'Politics',4:'Sports',5:'Tech',6:'Fashion',7:'Gaming',8:'Pets',9:'Reading',10:'Running',11:'Travel',12:'Volunteering'}
 # helper functions for prediction
 def predict_interest(tweets):
     interest_maxTweetLength = 141
-    predictionDic = {0:'Food',1:'Music',2:'News',3:'Politics',4:'Soccer',5:'Tech',6:'Fashion',7:'Gaming',8:'Pets',9:'Reading',10:'Running',11:'Travel',12:'Travel'}
     interest_data = processTweets(tweets)
     interest_data = interest_tokenizer.texts_to_sequences(interest_data)
     interest_data = sequence.pad_sequences(interest_data, maxlen = interest_maxTweetLength, padding = 'post')
