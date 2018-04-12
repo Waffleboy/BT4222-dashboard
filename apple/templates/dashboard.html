@@ -85,10 +85,16 @@
                               {% if forloop.counter < 4 %}
                                 {% if forloop.counter == 2 %}
                                   <!-- For hyperlinked screenname to screenname page-->
-                                  <td><a href = 'profile/?{{item}}'>{{item}} </a> </td>
+                                  <td><a href = 'profile/?{{item}}'>{{item}} </a>
+                                   </td>
                                 {% elif forloop.counter == 3 %}
                                   <!-- For tweet reply page -->
-                                  <td><a href = 'profile/?{{tweets.1}}?{{tweets.3}}'> {{item}} </a> </td>
+                                  <td><a href = 'profile/?{{tweets.1}}?{{tweets.3}}'> {{item}} </a> 
+                                    <form action = "/misclassified_api" method = "post" target="_blank">
+                                <input type="hidden" name="tweet_id" value="{{tweets.3}}" />
+                                <button type="submit", formmethod="post">Wrong</button>
+                              </form>
+                                  </td>
                                 {% else %}
                                   <td> {{item}} </td>
                                 {% endif %}
@@ -160,10 +166,16 @@
                               {% if forloop.counter < 5 %}
                                 {% if forloop.counter == 2 %}
                                 <!-- For hyperlinked screenname to screenname page-->
-                                  <td><a href = 'profile/?{{item}}'>{{item}} </a> </td>
+                                  <td><a href = 'profile/?{{item}}'>{{item}} </a> 
+                                  </td>
                                 {% elif forloop.counter == 3 %}
                                   <!-- For hyperlinked tweet to tweet page-->
-                                  <td><a href = 'profile/?{{tweets.1}}?{{tweets.4}}'>{{item}} </a> </td>
+                                  <td><a href = 'profile/?{{tweets.1}}?{{tweets.4}}'>{{item}} </a> 
+                                    <form action = "/misclassified_api" method = "post" target="_blank">
+                                    <input type="hidden" name="tweet_id" value="{{tweets.4}}" />
+                                    <button type="submit", formmethod="post">Wrong</button>
+                                  </form>
+                                  </td>
                                 {% else %}
                                   <td> {{item}} </td>
                                 {% endif %}   
@@ -329,20 +341,37 @@
                             <th>Date Received</th>
                             <th>Screenname</th>
                             <th>Tweet</th>
+                            <th> Positive </th>
+                            <th> Negative </th>
                           </tr>
                         </thead>
                         <tbody>
                           {% for tweets in irrelevant_tweets %}
-                          <tr>
-                          {% for item in tweets %}
-                                {% if forloop.counter == 2 %}
-                                  <!-- For hyperlinked screenname to screenname page-->
-                                  <td><a href = 'profile/?{{item}}'>{{item}} </a> </td>
-                                {% else %}
-                                  <td> {{item}} </td>
-                                {% endif %} 
-                          {% endfor %}
-                          </tr>
+                            <tr>
+                            {% for item in tweets %}
+                              {% if forloop.counter <= 3 %}
+                                    {% if forloop.counter == 2 %}
+                                      <!-- For hyperlinked screenname to screenname page-->
+                                      <td><a href = 'profile/?{{item}}'>{{item}} </a> </td>
+                                    {% else %}
+                                      <td> {{item}} </td>
+                                    {% endif %} 
+                              {% endif %} 
+                            {% endfor %}
+                            <td>
+                            <form action = "/misclassified_api" method = "post" target="_blank">
+                                  <input type="hidden" name="tweet_id" value="{tweets.3}}" />
+                                  <input type="hidden" name="correct" value="positive" />
+                                  <button type="submit", formmethod="post">Positive</button>
+                                </form>
+                              </td>
+                              <td>
+                              <form action = "/misclassified_api" method = "post" target="_blank">
+                                 <input type="hidden" name="tweet_id" value="{{tweets.3}}" />
+                                  <input type="hidden" name="correct" value="negative" />
+                                  <button type="submit", formmethod="post">Negative</button>
+                            </form></td>
+                            </tr>
                           {% endfor %}
 
                         </tbody>

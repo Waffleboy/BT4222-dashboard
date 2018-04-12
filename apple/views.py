@@ -187,3 +187,32 @@ def autoreply_api(request):
 			response = autoreply_all()
 		
 	return HttpResponse(json.dumps(response))
+
+
+@csrf_exempt
+def misclassified_api(request):
+	if request.method == 'POST':
+		tweet_id = request.POST['tweet_id']
+		tweet = Tweet.objects.filter(tweet_id = tweet_id).first()
+		mapper = {"positive":"negative","negative":"positive"}
+
+		response = {"success":False}
+
+		if tweet:
+			sentiment = tweet.sentiment
+			tweet.properties["misclassified"] = {"status":True,"original":sentiment}
+
+			if sentiment == 'irrelevant':
+				correct = request.POST['correct']
+				tweet.sentiment = correct
+
+			else: #pos or neg
+				other_sentiment = mapper[sentiment]
+				tweet.sentiment = other_sentiment
+			tweet.save()
+
+			response = {"success":True,"tweet_id":tweet_id,
+					"new_sentiment": tweet.sentiment,
+					"old_sentiment":tweet.properties["misclassified"]["original"]}
+		
+	return HttpResponse(json.dumps(response))
