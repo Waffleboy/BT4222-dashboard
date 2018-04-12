@@ -119,7 +119,7 @@ def get_api_response(user):
         if response.status_code == 403: # max calls for key
             global keyNum
             keyNum += 1
-        return keyNum
+        return min(keyNum, len(keys)-1)   # avoid keyNum > keys available
 
     try:
         response = call_face_api(keys[keyNum], face_api_url, url)
