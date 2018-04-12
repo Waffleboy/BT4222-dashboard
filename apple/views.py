@@ -22,6 +22,7 @@ from apple.service_modules.autoreply_module import autoreply,autoreply_all
 import logging
 logger = logging.getLogger(__name__)
 
+@login_required(login_url="login/")
 def index(request):
 	context = {}
 
@@ -49,22 +50,25 @@ def index(request):
 	context["negative_high_priority_count_24hr_count"] =  high_priority_negative_tweets_count
 
 	if high_priority_negative_tweets_count != 0:
-		negative_high_priority_percentage = round(high_priority_negative_tweets_count / twenty_four_hour_negative_tweets_count,2) * 100
+		negative_high_priority_percentage = round((high_priority_negative_tweets_count / twenty_four_hour_negative_tweets_count) * 100 ,2) 
 	else:
 		negative_high_priority_percentage = 0
 
 	context["negative_high_priority_percentage"] = negative_high_priority_percentage
 
-	hourly = negative_tweets.filter(created_at__gte = hour_ago)
-	context["tweet_velocity"] = hourly.count()
-	context["resolve_velocity"] = sum([1 for x in hourly if x.resolved_time])
+	hourly_negative = negative_tweets.filter(created_at__gte = hour_ago)
+	hourly_positive = positive_tweets.filter(created_at__gte = hour_ago)
+	context["tweet_velocity"] = hourly_negative.count() + hourly_positive.count()
+	context["resolve_velocity"] = sum([1 for x in hourly_negative if x.resolved_time]) + sum([1 for x in hourly_positive if x.resolved_time])
 
 	context['irrelevant_tweets'] = views_helper.format_other_tweets_to_table(irrelevant_tweets)
 	context['positive_tweets'] = views_helper.format_pos_tweets_to_table(positive_tweets)
 	context['negative_tweets'] = views_helper.format_neg_tweets_to_table(negative_tweets)
 
+	context['user'] = request.user
 	return render(request, 'dashboard.html', context)
 
+@login_required(login_url="login/")
 def customers(request):
 	context = {}
 
@@ -74,6 +78,7 @@ def customers(request):
 	context['users'] = user_info
 	return render(request, 'customers.html', context)
 
+@login_required(login_url="login/")
 def profile(request):
 	context = {'redirected': 0}
 	

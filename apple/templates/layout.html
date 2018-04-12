@@ -51,11 +51,13 @@
             <!-- menu profile quick info -->
             <div class="profile clearfix">
               <div class="profile_pic">
-                <img src="/static/images/img2.jpg" alt="..." class="img-circle profile_img2">
+                <img src="/static/images/img.jpg" alt="..." class="img-circle profile_img2">
               </div>
               <div class="profile_info">
-                <span>Welcome, God</span>
-                <h2>M. Thirukkumaran</h2>
+                <span>Welcome, </span>
+                <h2>{{ user.username }}</h2>
+                <span>Last Login </span>
+                <h2>{{ user.last_login }}</h2>
               </div>
             </div>
             <!-- /menu profile quick info -->
@@ -111,7 +113,7 @@
               <ul class="nav navbar-nav navbar-right">
                 <li class="">
                   <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> 
-                    <img src="images/img2.jpg" alt="">M. Thirukkumaran
+                    <img src="images/img2.jpg" alt="">{{user.username}}
                     <!--<span class=" fa fa-angle-down"></span>-->
                   </a>
                   <!--
