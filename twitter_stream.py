@@ -32,6 +32,9 @@ class StdOutListener(StreamListener):
         global API_URL
         data_json = json.loads(data)
         data_json["AUTH_KEY"] = os.environ["DJANGO_POST_KEY"]
+
+        if "extended_tweet" in data_json.keys() and "full_text" in data_json['extended_tweet']:
+            data_json["text"] = data_json['extended_tweet']["full_text"]
         res = requests.post(API_URL,json=data_json)
         return True
 
@@ -45,7 +48,7 @@ if __name__ == '__main__':
     l = StdOutListener()
     auth = OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
-    stream = Stream(auth, l)
+    stream = Stream(auth, l, tweet_mode='extended')
 
     #This line filter Twitter Streams to capture data by the keywords
     stream.filter(track=['@applesupport'])

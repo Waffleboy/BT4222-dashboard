@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from apple.forms import LoginForm
 from apple.views import index,customers,stream_api_post,profile,resolve_api_post,autoreply_api
 
 urlpatterns = [
@@ -25,5 +26,7 @@ urlpatterns = [
     url(r'autoreply_api',autoreply_api),
     url(r'resolve_api',resolve_api_post),
     url(r'^profile', profile),
+    url(r'^login/$', auth_views.login, {"template_name":"login.html","authentication_form":LoginForm}, name='login'),
+    url(r'^logout/$', auth_views.logout, {'next_page': '/login/'}, name='logout'),
     url(r'^',  index)
 ]

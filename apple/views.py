@@ -49,7 +49,7 @@ def index(request):
 	context["negative_high_priority_count_24hr_count"] =  high_priority_negative_tweets_count
 
 	if high_priority_negative_tweets_count != 0:
-		negative_high_priority_percentage = round(twenty_four_hour_negative_tweets_count / high_priority_negative_tweets_count,2) * 100
+		negative_high_priority_percentage = round(high_priority_negative_tweets_count / twenty_four_hour_negative_tweets_count,2) * 100
 	else:
 		negative_high_priority_percentage = 0
 
