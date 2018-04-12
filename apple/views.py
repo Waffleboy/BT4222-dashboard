@@ -131,7 +131,7 @@ def profile(request):
 		context['followers'] = user.followers_count
 		context['friends'] = user.friends_count
 		context['interest'] = user.interest
-		
+		context['notable_accounts'] = user.find_notable_accounts()
 		
 		context['age'] = user.age
 		context['gender'] = user.gender

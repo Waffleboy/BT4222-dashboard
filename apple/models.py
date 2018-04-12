@@ -7,6 +7,8 @@ if new_path not in sys.path:
 if new_path2 not in sys.path:
 	sys.path.append(new_path2)
 
+import threading
+import logging
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 import pandas as pd
@@ -17,8 +19,9 @@ from relevant_pipeline import ensembleML
 from apple.service_modules import priority_module
 from pipeline import predictUser
 from django.utils import timezone
+from apple.service_modules import twitter_user_downloader
+from apple.service_modules import notable_account_finder
 
-import logging
 logger = logging.getLogger(__name__)
 
 # Create your models here.
@@ -42,6 +45,7 @@ class TwitterUser(models.Model):
 	interest = models.CharField(max_length=250,default=None, blank=True, null=True)
 	gender = models.CharField(max_length=250,default=None, blank=True, null=True)
 
+	following_ids = JSONField(default=dict)
 	raw_response = JSONField(default=dict)
 	properties = JSONField(default=dict)
 
@@ -78,8 +82,25 @@ class TwitterUser(models.Model):
 
 		new_user = TwitterUser(**user_info)
 		new_user.save()
+
+		# start thread to populate ids following
+		if new_user.following_ids == {}:
+			t = threading.Thread(target=new_user.populate_following_ids)
+			t.start()
 		return new_user
-		
+
+
+	def populate_following_ids(self):
+		ids = twitter_user_downloader.obtain_user_ids_of_friends(self.screen_name)
+		self.following_ids["ids"] = ids
+		return self.save()
+	
+	def find_notable_accounts(self):
+		if self.following_ids != {}:
+			ids = self.following_ids['ids']
+			notable_accounts = notable_account_finder.convert_to_notable_account_format(ids)
+			return notable_accounts
+		return []
 
 
 
