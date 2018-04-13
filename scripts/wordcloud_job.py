@@ -14,7 +14,7 @@ from wordcloud import WordCloud
 import re
 from nltk.corpus import stopwords
 
-words_to_remove = set(['rt','apple','apple_support','applesupport'])
+words_to_remove = set(['rt','apple','apple_support','applesupport','support'])
 stop = set(stopwords.words('english'))
 stop = stop.union(words_to_remove)
 

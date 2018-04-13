@@ -19,7 +19,7 @@ import pyLDAvis.gensim as gensimvis
 import pyLDAvis
 
 
-words_to_remove = set(['rt','apple','apple_support','applesupport'])
+words_to_remove = set(['rt','apple','apple_support','applesupport','support'])
 stop = set(stopwords.words('english'))
 stop = stop.union(words_to_remove)
 
@@ -35,7 +35,7 @@ def run():
     tweets = Tweet.objects.filter(created_at__gte = dates[-1]) # last
     for i in range(len(dates)-1,-1,-1):
         tweets = tweets.filter(created_at__gte = dates[i])
-        num_topics = 5
+        num_topics = 6
 
         text = [x.text for x in tweets]
         preprocessed_text = preprocess_text(text)
