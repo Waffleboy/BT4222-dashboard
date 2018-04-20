@@ -39,7 +39,7 @@ You now need to settle environment variables, and the database
 
 `export TWITTER_CONSUMER_SECRET= <Replace with your key>`
 
-`export DJANGO_POST_KEY='thisisasecretkey`
+`export DJANGO_POST_KEY='thisisasecretkey'`
 
 Make sure to deactivate in `deactivate.d/env_vars`
 
