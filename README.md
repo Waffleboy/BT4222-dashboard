@@ -1,5 +1,4 @@
 # BT4222
-Saikang mod 102
 
 ## Setup Instructions
 
@@ -30,23 +29,37 @@ You now need to settle environment variables, and the database
 
 3. Set up environment variables for conda (unfortunately not auto) follow instructions at https://conda.io/docs/user-guide/tasks/manage-environments.html#win-save-env-variables and set environment variables: 
 
-`export DATABASE_URL='postgres://djangouser:password@localhost/bt4222db`
+`export DATABASE_URL='postgres://djangouser:password@localhost/bt4222db'`
 
-`export TWITTER_ACCESS_TOKEN="REDACTED"`
+`export TWITTER_ACCESS_TOKEN= <Replace with your key>`
 
-`export TWITTER_ACCESS_SECRET="REDACTED"`
+`export TWITTER_ACCESS_SECRET= <Replace with your key>`
 
-`export TWITTER_CONSUMER_KEY="REDACTED"`
+`export TWITTER_CONSUMER_KEY= <Replace with your key>`
 
-`export TWITTER_CONSUMER_SECRET=REDACTED`
+`export TWITTER_CONSUMER_SECRET= <Replace with your key>`
 
 `export DJANGO_POST_KEY=REDACTED`
 
-Make sure to do the same in `deactivate.d/env_vars`
+Make sure to deactivate in `deactivate.d/env_vars`
 
 
 Install Heroku toolchain cli
 1. `https://devcenter.heroku.com/articles/heroku-cli`
+
+## Getting resources
+Certain resources are not convenient (API keys) or too big (models) to be uploaded into pushed into github.
+
+1. Under 'BT4222-dashboard/scripts', place the following models:
+`dl_mode.h5`
+`ensembler_model.h5`
+`lr_relevant.pkl`
+`ml_models.pkl`
+`nb_relevant.pkl`
+`tokenizer.pkl`
+`vect_relevant.pkl`
+`vectorizer_ML.pkl`
+`xgb_relevant.pkl`
 
 ## Test installation
 
