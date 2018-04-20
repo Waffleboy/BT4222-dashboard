@@ -39,7 +39,7 @@ You now need to settle environment variables, and the database
 
 `export TWITTER_CONSUMER_SECRET= <Replace with your key>`
 
-`export DJANGO_POST_KEY=REDACTED`
+`export DJANGO_POST_KEY='thisisasecretkey`
 
 Make sure to deactivate in `deactivate.d/env_vars`
 
@@ -48,7 +48,7 @@ Install Heroku toolchain cli
 1. `https://devcenter.heroku.com/articles/heroku-cli`
 
 ## Getting resources
-Certain resources are not convenient (API keys) or too big (models) to be uploaded into pushed into github.
+Certain resources are not convenient (API keys) or too big (models) to be pushed into github.
 
 All the resources can be obtained from the google drive link sent separately:
 
