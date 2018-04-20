@@ -50,7 +50,9 @@ Install Heroku toolchain cli
 ## Getting resources
 Certain resources are not convenient (API keys) or too big (models) to be uploaded into pushed into github.
 
-1. Under 'BT4222-dashboard/scripts', place the following models:
+All the resources can be obtained from: https://drive.google.com/drive/folders/1eF2uI_4F7tjcqgkN0LT7zKUqBGOIXxpS
+
+1. Under `BT4222-dashboard/scripts`, place the following models:
 `dl_mode.h5`
 `ensembler_model.h5`
 `lr_relevant.pkl`
@@ -60,6 +62,11 @@ Certain resources are not convenient (API keys) or too big (models) to be upload
 `vect_relevant.pkl`
 `vectorizer_ML.pkl`
 `xgb_relevant.pkl`
+
+2. Under `BT4222-dashboard/Interest`, place the following CSVs for API keys:
+`faceAPI.csv`
+`apikeys.csv`
+
 
 ## Test installation
 
