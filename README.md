@@ -1,5 +1,7 @@
 # BT4222
 
+(See how to run below once installed)
+
 ## Setup Instructions
 
 1. Install `anaconda` URL: https://docs.continuum.io/anaconda/install/
@@ -41,11 +43,8 @@ You now need to settle environment variables, and the database
 
 `export DJANGO_POST_KEY='thisisasecretkey'`
 
-Make sure to deactivate in `deactivate.d/env_vars`
+Make sure to follow the guide for deactivate as well (set the variables but unset instead of export in `deactivate.d/env_vars` )
 
-
-Install Heroku toolchain cli
-1. `https://devcenter.heroku.com/articles/heroku-cli`
 
 ## Getting resources
 Certain resources are not convenient (API keys) or too big (models) to be pushed into github.
@@ -75,3 +74,15 @@ All the resources can be obtained from the google drive link sent separately:
 3. Run `python manage.py migrate`
 4. Run `python manage.py runserver`
 5. Go to the URL that it prints out
+
+## How to use
+
+1. `python manage.py runserver` starts the main dashboard.
+2. `python twitter_stream.py` begins the twitter stream script. Everything will be POSTed to the dashboard.
+
+Once those are done, refresh the dashboard to begin seeing new tweets!
+
+## TODO:
+
+1. Insights page still under construction
+2. Make everything reactive instead of needing refresh
