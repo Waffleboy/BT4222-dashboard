@@ -50,7 +50,7 @@ Install Heroku toolchain cli
 ## Getting resources
 Certain resources are not convenient (API keys) or too big (models) to be uploaded into pushed into github.
 
-All the resources can be obtained from: https://drive.google.com/drive/folders/1eF2uI_4F7tjcqgkN0LT7zKUqBGOIXxpS
+All the resources can be obtained from the google drive link sent separately:
 
 1. Under `BT4222-dashboard/scripts`, place the following models:
 `dl_mode.h5`
